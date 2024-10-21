@@ -9,6 +9,9 @@ datasource db {
 
 model User {
   id       Int       @id @default(autoincrement())
+  username String
+  githubId Int? @unique
+  googleId String? @unique
   sessions Session[]
 }
 

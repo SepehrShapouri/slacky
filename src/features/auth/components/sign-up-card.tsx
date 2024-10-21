@@ -13,51 +13,12 @@ import { Separator } from "@/components/ui/separator";
 import { SignInFlow } from "../types";
 import { useState } from "react";
 import { TriangleAlert } from "lucide-react";
-// import { useAuthActions } from "@convex-dev/auth/react";
 type SignUpCardProps = {
   setState: (state: SignInFlow) => void;
 };
 export const SignUpCard = ({ setState }: SignUpCardProps) => {
-//   const { signIn } = useAuthActions();
-
-  const [name, setName] = useState<string>("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-
-  const [error, setError] = useState<string>("");
-  const [pending, setPending] = useState<boolean>(false);
-
-  const handleAuthProvider = (provider: "github" | "google" | "password") => {
-    setPending(true);
-    // signIn(provider).finally(() => {
-    //   setPending(false);
-    // });
-  };
-
-  const onPasswordSignUp = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (password !== confirmPassword) {
-      setError("Passwords do not match");
-      return;
-    }
-    setPending(true);
-    setError("");
-    // signIn("password", {
-    //   name,
-    //   email,
-    //   password,
-    //   flow: "signUp",
-    //   redirectTo: "/",
-    // })
-    //   .catch((err) => {
-    //     setError("Something went wrong");
-    //     console.log(err);
-    //   })
-    //   .finally(() => {
-    //     setPending(false);
-    //   });
-  };
+  const error = "";
+  const pending = false;
 
   return (
     <Card className="w-full h-full p-8">
@@ -74,35 +35,27 @@ export const SignUpCard = ({ setState }: SignUpCardProps) => {
         </div>
       )}
       <CardContent className="space-y-5 px-0 pb-0">
-        <form className="space-y-2.5" onSubmit={onPasswordSignUp}>
+        <form className="space-y-2.5">
           <Input
             disabled={pending}
-            value={name}
-            onChange={(e) => setName(e.target.value)}
             placeholder="Full name"
             type="text"
             required
           />
           <Input
             disabled={pending}
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
             placeholder="Email address"
             type="email"
             required
           />
           <Input
             disabled={pending}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
             placeholder="Password"
             type="password"
             required
           />
           <Input
             disabled={pending}
-            value={confirmPassword}
-            onChange={(e) => setConfirmPassword(e.target.value)}
             placeholder="Confirm password"
             type="password"
             required
@@ -115,7 +68,6 @@ export const SignUpCard = ({ setState }: SignUpCardProps) => {
         <div className="flex flex-col gap-y-2.5">
           <Button
             disabled={pending}
-            onClick={() => handleAuthProvider("google")}
             variant="outline"
             size="lg"
             className="w-full relative"
@@ -125,7 +77,6 @@ export const SignUpCard = ({ setState }: SignUpCardProps) => {
           </Button>
           <Button
             disabled={pending}
-            onClick={() => handleAuthProvider("github")}
             variant="outline"
             size="lg"
             className="w-full relative"
