@@ -9,6 +9,7 @@ import { cookies } from "next/headers";
 
 import { OAuth2Tokens } from "arctic";
 import { db } from "@/db";
+import { getUserFromEmail } from "@/features/auth/lib/server/user";
 
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
@@ -41,10 +42,14 @@ export async function GET(request: Request): Promise<Response> {
     },
   });
 
-  const githubUser:{login:string,id:number,avatarUrl:string,email:string,name:string,} = await githubUserResponse.json();
+  const githubUser: {
+    login: string;
+    id: number;
+    avatar_url: string;
+    email: string;
+    name: string;
+  } = await githubUserResponse.json();
 
-  //TODO: add email here so we can check if a user with this github email already exists
-  console.log(githubUser);
 
   const existingUser = await db.user.findUnique({
     where: {
@@ -63,12 +68,31 @@ export async function GET(request: Request): Promise<Response> {
       },
     });
   }
+  if (githubUser.email) {
+    const existingUserByEmail = await getUserFromEmail(githubUser.email);
+    if (existingUserByEmail) {
+      if (!existingUserByEmail.githubId) {
+        await db.user.update({
+          where: { email: githubUser.email },
+          data: { githubId: githubUser.id },
+        });
+      }
+      const sessionToken = generateSessionToken();
+      const session = await createSession(sessionToken, existingUserByEmail.id);
+      setSessionTokenCookie(sessionToken, session.expiresAt);
+      return new Response(null, {
+        status: 302,
+        headers: {
+          Location: "/",
+        },
+      });
+    }
+  }
 
   const user = await db.user.create({
     data: {
       username: githubUser.login,
       githubId: githubUser.id,
-      
     },
   });
 

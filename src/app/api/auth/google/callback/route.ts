@@ -9,6 +9,7 @@ import { cookies } from "next/headers";
 import { google } from "@/features/auth/lib/auth";
 import { decodeIdToken, type OAuth2Tokens } from "arctic";
 import { db } from "@/db";
+import { getUserFromEmail } from "@/features/auth/lib/server/user";
 
 export async function GET(request: Request): Promise<Response> {
   const url = new URL(request.url);
@@ -49,10 +50,12 @@ export async function GET(request: Request): Promise<Response> {
       },
     }
   );
-  const googleUser: { id: string; name: string; email: string,picture:string } =
-    await googleUserResponse.json();
-  // TODO: Replace this with your own DB query.
-  console.log(googleUser)
+  const googleUser: {
+    id: string;
+    name: string;
+    email: string;
+    picture: string;
+  } = await googleUserResponse.json();
   const existingUser = await db.user.findUnique({
     where: {
       googleId: googleUser.id,
@@ -70,7 +73,24 @@ export async function GET(request: Request): Promise<Response> {
       },
     });
   }
-
+  const existingUserByEmail = await getUserFromEmail(googleUser.email);
+  if (existingUserByEmail) {
+    if (!existingUserByEmail.googleId) {
+      await db.user.update({
+        where: { email: googleUser.email },
+        data: { googleId: googleUser.id },
+      });
+    }
+    const sessionToken = generateSessionToken();
+    const session = await createSession(sessionToken, existingUserByEmail.id);
+    setSessionTokenCookie(sessionToken, session.expiresAt);
+    return new Response(null, {
+      status: 302,
+      headers: {
+        Location: "/",
+      },
+    });
+  }
   const user = await db.user.create({
     data: {
       username: googleUser.name,

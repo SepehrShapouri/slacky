@@ -7,7 +7,7 @@ import { FcGoogle } from "react-icons/fc";
 export function GoogleAuthButton() {
   return (
     <a
-      href="/auth/google"
+      href="/api/auth/google"
       className={cn(
         buttonVariants({
           className: "w-full relative",
@@ -26,7 +26,7 @@ export function GoogleAuthButton() {
 export function GithubAuthButton() {
   return (
     <a
-      href="/auth/github"
+      href="/api/auth/github"
       className={cn(
         buttonVariants({
           className: "w-full relative",
