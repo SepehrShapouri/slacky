@@ -1,4 +1,4 @@
-import { google } from "@/features/auth/lib/auth";
+import { google } from "@/features/auth/lib/server/oauth";
 import { generateState, generateCodeVerifier } from "arctic";
 import { cookies } from "next/headers";
 
@@ -8,7 +8,7 @@ export async function GET(): Promise<Response> {
   const url = google.createAuthorizationURL(state, codeVerifier, [
     "openid",
     "profile",
-    "email"
+    "email",
   ]);
   cookies().set("google_oauth_state", state, {
     path: "/",

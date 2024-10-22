@@ -6,7 +6,7 @@ import {
 
 import { cookies } from "next/headers";
 
-import { google } from "@/features/auth/lib/auth";
+import { google } from "@/features/auth/lib/server/oauth";
 import { decodeIdToken, type OAuth2Tokens } from "arctic";
 import { db } from "@/db";
 import { getUserFromEmail } from "@/features/auth/lib/server/user";
@@ -61,8 +61,15 @@ export async function GET(request: Request): Promise<Response> {
       googleId: googleUser.id,
     },
   });
-  console.log(googleUser);
   if (existingUser !== null) {
+    if(googleUser.picture){
+      await db.user.update({
+        where: { id: existingUser.id },
+        data: {
+          avatarUrl: googleUser.picture,
+        },
+      });
+    }
     const sessionToken = generateSessionToken();
     const session = await createSession(sessionToken, existingUser.id);
     setSessionTokenCookie(sessionToken, session.expiresAt);

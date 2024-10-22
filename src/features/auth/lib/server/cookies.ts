@@ -10,7 +10,7 @@ export function setSessionTokenCookie(token: string, expiresAt: Date): void {
   });
 }
 
-export function deleteSessionCookie(): void {
+export function deleteSessionTokenCookie(): void {
   cookies().set("session", "", {
     httpOnly: true,
     sameSite: "lax",

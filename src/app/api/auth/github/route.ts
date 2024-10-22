@@ -1,4 +1,4 @@
-import { github } from "@/features/auth/lib/auth";
+import { github } from "@/features/auth/lib/server/oauth";
 import { generateState } from "arctic";
 import { cookies } from "next/headers";
 

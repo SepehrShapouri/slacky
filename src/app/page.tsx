@@ -1,12 +1,5 @@
-import { getCurrentSession } from "@/features/auth/lib/server/session";
-import Image from "next/image";
+import UserButtonWrapper from "@/features/auth/components/user-button-wrapper";
 
 export default async function Home() {
-  const { user } = await getCurrentSession();
-  return (
-    <div>
-      hello world, this is slacky
-      {user?.fullname}
-    </div>
-  );
+  return <UserButtonWrapper />;
 }

@@ -4,7 +4,7 @@ import {
   generateSessionToken,
 } from "@/features/auth/lib/server/session";
 
-import { github } from "@/features/auth/lib/auth";
+import { github } from "@/features/auth/lib/server/oauth";
 import { cookies } from "next/headers";
 
 import { OAuth2Tokens } from "arctic";
@@ -49,7 +49,7 @@ export async function GET(request: Request): Promise<Response> {
     email: string;
     name: string;
   } = await githubUserResponse.json();
-
+  console.log(githubUser);
   const existingUser = await db.user.findUnique({
     where: {
       githubId: githubUser.id,
@@ -57,6 +57,14 @@ export async function GET(request: Request): Promise<Response> {
   });
 
   if (existingUser !== null) {
+    if (githubUser.avatar_url) {
+      await db.user.update({
+        where: { id: existingUser.id },
+        data: {
+          avatarUrl: githubUser.avatar_url,
+        },
+      });
+    }
     const sessionToken = generateSessionToken();
     const session = await createSession(sessionToken, existingUser.id);
     setSessionTokenCookie(sessionToken, session.expiresAt);
