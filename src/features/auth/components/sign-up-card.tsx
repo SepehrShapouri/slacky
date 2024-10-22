@@ -1,5 +1,4 @@
-import { FcGoogle } from "react-icons/fc";
-import { FaGithub } from "react-icons/fa";
+"use client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -8,17 +7,60 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
+import CustomInput from "@/components/ui/custom-input";
+import { Form } from "@/components/ui/form";
 import { Separator } from "@/components/ui/separator";
-import { SignInFlow } from "../types";
+import api from "@/lib/ky";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { HTTPError } from "ky";
+import { isRedirectError } from "next/dist/client/components/redirect";
 import { useState } from "react";
-import { TriangleAlert } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { signUpSchema } from "../lib/validators";
+import { SignInFlow } from "../types";
+import ErrorAlert from "./error-alert";
+import { GithubAuthButton, GoogleAuthButton } from "./oauth-buttons";
+import { User } from "@prisma/client";
+import { useRouter } from "next/navigation";
 type SignUpCardProps = {
   setState: (state: SignInFlow) => void;
 };
 export const SignUpCard = ({ setState }: SignUpCardProps) => {
-  const error = "";
-  const pending = false;
+  const [error, setError] = useState<string>("");
+  const [pending, setPending] = useState<boolean>(false);
+const {push} = useRouter()
+  const form = useForm<z.infer<typeof signUpSchema>>({
+    resolver: zodResolver(signUpSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+      username: "",
+      confirmPassword: "",
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof signUpSchema>): Promise<void> {
+    setPending(true);
+    try {
+      setError("");
+      const user = await api.post("/api/auth/sign-up", { json: values }).json<User | null>();
+      if(user){
+        push("/")
+      }
+    } catch (error) {
+      console.log(error);
+      if (isRedirectError(error)) {
+        throw error;
+      }
+      if (error instanceof HTTPError) {
+        const errorJson = await error.response.json();
+        setError(errorJson.error);
+      }
+    } finally {
+      setPending(false);
+    }
+  }
 
   return (
     <Card className="w-full h-full p-8">
@@ -28,62 +70,53 @@ export const SignUpCard = ({ setState }: SignUpCardProps) => {
           Use your email or another service to continue
         </CardDescription>
       </CardHeader>
-      {!!error && (
-        <div className="bg-destructive/15 p-3 rounded-md flex items-center gap-x-2 text-sm text-destructive mb-6">
-          <TriangleAlert className="size-4" />
-          <p>{error}</p>
-        </div>
-      )}
+      {!!error && <ErrorAlert error={error} />}
       <CardContent className="space-y-5 px-0 pb-0">
-        <form className="space-y-2.5">
-          <Input
-            disabled={pending}
-            placeholder="Full name"
-            type="text"
-            required
-          />
-          <Input
-            disabled={pending}
-            placeholder="Email address"
-            type="email"
-            required
-          />
-          <Input
-            disabled={pending}
-            placeholder="Password"
-            type="password"
-            required
-          />
-          <Input
-            disabled={pending}
-            placeholder="Confirm password"
-            type="password"
-            required
-          />
-          <Button type="submit" className="w-full" size="lg" disabled={pending}>
-            continue
-          </Button>
-        </form>
+        <Form {...form}>
+          <form className="space-y-2.5" onSubmit={form.handleSubmit(onSubmit)}>
+            <CustomInput
+              disabled={pending}
+              type="text"
+              control={form.control}
+              name="username"
+              placeholder="Full name"
+            />
+            <CustomInput
+              disabled={pending}
+              type="email"
+              control={form.control}
+              name="email"
+              placeholder="Email address"
+            />
+            <CustomInput
+              disabled={pending}
+              type="password"
+              control={form.control}
+              name="password"
+              placeholder="Password"
+            />
+            <CustomInput
+              disabled={pending}
+              type="password"
+              control={form.control}
+              name="confirmPassword"
+              placeholder="ConfirmPassword"
+            />
+
+            <Button
+              type="submit"
+              className="w-full"
+              size="lg"
+              disabled={pending}
+            >
+              continue
+            </Button>
+          </form>
+        </Form>
         <Separator />
         <div className="flex flex-col gap-y-2.5">
-          <Button
-            disabled={pending}
-            variant="outline"
-            size="lg"
-            className="w-full relative"
-          >
-            <FcGoogle className="!size-5 absolute left-2.5" fontSize={12} />
-            Continue with Google
-          </Button>
-          <Button
-            disabled={pending}
-            variant="outline"
-            size="lg"
-            className="w-full relative"
-          >
-            <FaGithub className="!size-5 absolute left-2.5" />
-            Continue with Github
-          </Button>
+          <GoogleAuthButton />
+          <GithubAuthButton />
         </div>
         <p className="text-xs text-muted-foreground">
           Already have an account?{" "}
