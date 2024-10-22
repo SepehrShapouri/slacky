@@ -19,7 +19,7 @@ export async function getUserPasswordHash(userId: number): Promise<string> {
 export async function getUserFromEmail(email: string): Promise<User | null> {
   const user = await db.user.findUnique({
     where: {
-      email,
+      email:email.toLowerCase(),
     },
   });
   if (!user) return null;

@@ -7,7 +7,7 @@ export function verifyEmailInput(email: string): boolean {
 export async function checkEmailAvailability(email: string): Promise<boolean> {
   const existingUserByEmail = await db.user.findUnique({
     where: {
-      email,
+      email:email.toLowerCase(),
     },
   });
   if (existingUserByEmail) return false;

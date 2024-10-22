@@ -16,14 +16,14 @@ import { NextResponse } from "next/server";
 
 export async function POST(req: Request) {
   try {
-    const body: { email: string; password: string; username: string } =
+    const body: { email: string; password: string; fullname: string } =
       await req.json();
     console.log(body);
-    const { email, password, username } = body;
+    const { email, password, fullname } = body;
 
     if (
       typeof email !== "string" ||
-      typeof username !== "string" ||
+      typeof fullname !== "string" ||
       typeof password !== "string"
     ) {
       return NextResponse.json(
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-    if (email === "" || username === "" || password === "") {
+    if (email === "" || fullname === "" || password === "") {
       return NextResponse.json(
         { error: "Invalid or missing fields" },
         { status: 400 }
@@ -64,8 +64,8 @@ export async function POST(req: Request) {
     console.log("reached hashed pass");
     const user = await db.user.create({
       data: {
-        username,
-        email,
+        fullname,
+        email: email.toLowerCase(),
         password_hash,
       },
     });

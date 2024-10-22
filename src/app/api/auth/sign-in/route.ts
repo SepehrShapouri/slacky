@@ -33,7 +33,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid email" }, { status: 400 });
     }
 
-    const user = await getUserFromEmail(email);
+    const user = await getUserFromEmail(email.toLowerCase());
     if (!user) {
       return NextResponse.json(
         { error: "Invalid email or user doesnt exist" },

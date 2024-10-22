@@ -61,7 +61,7 @@ export async function GET(request: Request): Promise<Response> {
       googleId: googleUser.id,
     },
   });
-
+  console.log(googleUser);
   if (existingUser !== null) {
     const sessionToken = generateSessionToken();
     const session = await createSession(sessionToken, existingUser.id);
@@ -77,8 +77,11 @@ export async function GET(request: Request): Promise<Response> {
   if (existingUserByEmail) {
     if (!existingUserByEmail.googleId) {
       await db.user.update({
-        where: { email: googleUser.email },
-        data: { googleId: googleUser.id },
+        where: { id: existingUserByEmail.id },
+        data: {
+          googleId: googleUser.id,
+          ...(googleUser.picture && { avatarUrl: googleUser.picture }),
+        },
       });
     }
     const sessionToken = generateSessionToken();
@@ -93,8 +96,10 @@ export async function GET(request: Request): Promise<Response> {
   }
   const user = await db.user.create({
     data: {
-      username: googleUser.name,
+      fullname: googleUser.name,
       googleId: googleUser.id,
+      ...(googleUser.email && { email: googleUser.email }),
+      ...(googleUser.picture && { avatarUrl: googleUser.picture }),
     },
   });
 

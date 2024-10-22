@@ -50,7 +50,6 @@ export async function GET(request: Request): Promise<Response> {
     name: string;
   } = await githubUserResponse.json();
 
-
   const existingUser = await db.user.findUnique({
     where: {
       githubId: githubUser.id,
@@ -73,8 +72,11 @@ export async function GET(request: Request): Promise<Response> {
     if (existingUserByEmail) {
       if (!existingUserByEmail.githubId) {
         await db.user.update({
-          where: { email: githubUser.email },
-          data: { githubId: githubUser.id },
+          where: { id: existingUserByEmail.id },
+          data: {
+            githubId: githubUser.id,
+            ...(githubUser.avatar_url && { avatarUrl: githubUser.avatar_url }),
+          },
         });
       }
       const sessionToken = generateSessionToken();
@@ -91,8 +93,10 @@ export async function GET(request: Request): Promise<Response> {
 
   const user = await db.user.create({
     data: {
-      username: githubUser.login,
+      fullname: githubUser.login,
       githubId: githubUser.id,
+      ...(githubUser.email && { email: githubUser.email }),
+      ...(githubUser.avatar_url && { avatarUrl: githubUser.avatar_url }),
     },
   });
 

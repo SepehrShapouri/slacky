@@ -35,7 +35,7 @@ const {push} = useRouter()
     defaultValues: {
       email: "",
       password: "",
-      username: "",
+      fullname: "",
       confirmPassword: "",
     },
   });
@@ -78,7 +78,7 @@ const {push} = useRouter()
               disabled={pending}
               type="text"
               control={form.control}
-              name="username"
+              name="fullname"
               placeholder="Full name"
             />
             <CustomInput

@@ -9,7 +9,7 @@ datasource db {
 
 model User {
   id            Int     @id @default(autoincrement())
-  username      String
+  fullname      String
   password_hash String?
 
   githubId  Int?      @unique
