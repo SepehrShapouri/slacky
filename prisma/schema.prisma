@@ -12,13 +12,24 @@ model User {
   fullname      String
   password_hash String?
 
-  githubId  Int?      @unique
-  googleId  String?   @unique
-  sessions  Session[]
-  email     String?   @unique
-  avatarUrl String?
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @default(now())
+  githubId   Int?         @unique
+  googleId   String?      @unique
+  sessions   Session[]
+  email      String?      @unique
+  avatarUrl  String?
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @default(now())
+  Workspaces Workspaces[]
+}
+
+model Workspaces {
+  id       String @id @default(cuid())
+  name     String
+  userId   Int
+  user     User   @relation(fields: [userId], references: [id])
+  joinCode String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
 }
 
 model Session {
