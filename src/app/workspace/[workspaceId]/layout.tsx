@@ -1,11 +1,15 @@
 import React from "react";
 import Toolbar from "./toolbar";
-
+import Sidebar from "./sidebar";
 function WorkspaceLayout({ children }: React.PropsWithChildren) {
   return (
     <div className="h-full ">
       <Toolbar />
-      {children}
+      <div className="flex h-[calc(100vh-40px)]">
+        <Sidebar />
+        
+        {children}
+      </div>
     </div>
   );
 }

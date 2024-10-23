@@ -10,6 +10,7 @@ async function UserButtonWrapper() {
     <Suspense fallback={<div>Loading...</div>}>
       <UserButton user={user}/>
     </Suspense>
+    
   );
 }
 

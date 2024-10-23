@@ -14,16 +14,16 @@ import { LogOut } from "lucide-react";
 export const UserButton = ({ user }: { user: User }) => {
   const { fullname, avatarUrl, email } = user;
   const avatarFallback = fullname.charAt(0).toUpperCase();
-  console.log(fullname, avatarUrl, user);
+  
   return (
     <DropdownMenu modal={false}>
       <DropdownMenuTrigger className="outline-none relative">
-        <Avatar className="size-10 hover:opacity-75 transition">
+        <Avatar className="size-9 hover:opacity-75 transition rounded-lg">
           <AvatarImage alt={fullname} src={avatarUrl || undefined} />
           <AvatarFallback>{avatarFallback}</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="center" side="right" className="w-60">
+      <DropdownMenuContent align="center" side="right" className="w-60 mb-2">
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
             <Avatar className="h-8 w-8 rounded-lg">

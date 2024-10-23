@@ -10,7 +10,7 @@ type WorkspacePageProps = {
 function page() {
   const workspaceId = useWorkspaceId();
   const { isLoading, workspace } = useGetWorkspace({ id: workspaceId });
-  return <div>{workspaceId}</div>;
+  return <div></div>;
 }
 
 export default page;
