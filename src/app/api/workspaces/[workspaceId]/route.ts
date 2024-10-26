@@ -14,12 +14,17 @@ export async function GET(
     const workspace = await db.workspaces.findUnique({
       where: {
         id: workspaceId,
+        members: {
+          some: {
+            userId: user.id,
+          },
+        },
       },
     });
 
     if (!workspace) {
       return NextResponse.json(
-        { error: "Invalid workspace id / workspace doesnt exist" },
+        { error: "You are not authorized to access this workspace, or it doesnt exist." },
         { status: 404 }
       );
     }

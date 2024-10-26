@@ -13,12 +13,13 @@ import { useCreateWorkspace } from "../api/use-create-workspace";
 import { useCreateWorkspaceModalAtom } from "../store/use-create-workspace-modal";
 import ErrorAlert from "@/features/auth/components/error-alert";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 export const CreateWorkspaceModal = () => {
   const { push } = useRouter();
   const [open, setOpen] = useCreateWorkspaceModalAtom();
   const [workspaceName, setWorkspaceName] = useState<string>("");
-
+  const queryClient = useQueryClient();
   const { createWorkspace, isPending, isError, error } = useCreateWorkspace();
   const handleClose = () => {
     setOpen(false);
@@ -29,10 +30,16 @@ export const CreateWorkspaceModal = () => {
     createWorkspace(
       { name: workspaceName },
       {
-        onSuccess: (data) => {
+        onSuccess: async (data) => {
+          await queryClient.invalidateQueries({
+            queryKey: ["workspaces", "all"],
+          });
+          await queryClient.refetchQueries({
+            queryKey: ["workspaces", "all"],
+          });
+          handleClose();
           toast.success("Workspace created");
           push(`/workspace/${data.id}`);
-          handleClose();
         },
       }
     );
@@ -43,7 +50,7 @@ export const CreateWorkspaceModal = () => {
         <DialogHeader>
           <DialogTitle>Add a workspace</DialogTitle>
         </DialogHeader>
-        {isError && error && <ErrorAlert error={"test"} />}
+        {isError && error && <ErrorAlert error={error.message} />}
         <form className="space-y-4" onSubmit={handleSubmit}>
           <Input
             value={workspaceName}

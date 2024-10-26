@@ -8,28 +8,30 @@ datasource db {
 }
 
 model User {
-  id            Int     @id @default(autoincrement())
-  fullname      String
-  password_hash String?
-
-  githubId   Int?         @unique
-  googleId   String?      @unique
-  sessions   Session[]
-  email      String?      @unique
-  avatarUrl  String?
-  createdAt  DateTime     @default(now())
-  updatedAt  DateTime     @default(now())
-  Workspaces Workspaces[]
+  id                Int          @id @default(autoincrement())
+  fullname          String
+  password_hash     String?
+  githubId          Int?         @unique
+  googleId          String?      @unique
+  sessions          Session[]
+  email             String?      @unique
+  avatarUrl         String?
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+  createdWorkspaces Workspaces[] @relation("WorkspaceCreator")
+  members           Member[]
 }
 
 model Workspaces {
-  id       String @id @default(cuid())
-  name     String
-  userId   Int
-  user     User   @relation(fields: [userId], references: [id])
-  joinCode String
+  id        String   @id @default(cuid())
+  name      String
+  userId    Int
+  creator   User     @relation("WorkspaceCreator", fields: [creatorId], references: [id])
+  creatorId Int
+  joinCode  String
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  members   Member[]
 }
 
 model Session {
@@ -38,4 +40,21 @@ model Session {
   expiresAt DateTime
 
   user User @relation(references: [id], fields: [userId], onDelete: Cascade)
+}
+
+model Member {
+  id          Int        @id @default(autoincrement())
+  role        Role
+  joinedAt    DateTime   @default(now())
+  user        User       @relation(fields: [userId], references: [id])
+  userId      Int
+  workspace   Workspaces @relation(fields: [workspaceId], references: [id])
+  workspaceId String
+
+  @@unique([userId, workspaceId])
+}
+
+enum Role {
+  ADMIN
+  MEMBER
 }

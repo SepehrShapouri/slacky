@@ -24,7 +24,7 @@ import { useRouter } from "next/navigation";
 function WorkspaceSwitcher() {
   const router = useRouter();
   const [_open, setOpen] = useCreateWorkspaceModalAtom();
-
+console.log(_open)
   const workspaceId = useWorkspaceId();
   const { workspaces, isLoading: isWorkspacesLoading } = useGetWorkspaces();
   const { workspace, isLoading: isWorkspaceLoading } = useGetWorkspace({
@@ -63,29 +63,33 @@ function WorkspaceSwitcher() {
               </div>
             </CommandItem>
           </CommandGroup>
-          <CommandInput placeholder="Search workspaces" />
+          {!!filteredWorkspaces?.length && (
+            <CommandInput placeholder="Search workspaces" />
+          )}
           <CommandList>
             <CommandEmpty>No workspaces found.</CommandEmpty>
-            <CommandGroup heading="Workspaces">
-              <ScrollArea className="h-[150px] overflow-scroll">
-                {filteredWorkspaces?.map((workspace) => (
-                  <CommandItem
-                    className="cursor-pointer"
-                    onSelect={() => router.push(`/workspace/${workspace.id}`)}
-                  >
-                    <div className="shrink-0 size-9 relative  bg-[#616061] text-white font-semibold text-lg rounded-lg flex items-center justify-center mr-2">
-                      {workspace.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="truncate">
-                      <p className="truncate">{workspace?.name}</p>
-                      <p className="text-xs text-muted-foreground font-normal">
-                        5 channels
-                      </p>
-                    </div>
-                  </CommandItem>
-                ))}
-              </ScrollArea>
-            </CommandGroup>
+            {!!filteredWorkspaces?.length && (
+              <CommandGroup heading="Workspaces">
+                <ScrollArea className="max-h-[150px] overflow-scroll">
+                  {filteredWorkspaces?.map((workspace) => (
+                    <CommandItem
+                      className="cursor-pointer"
+                      onSelect={() => router.push(`/workspace/${workspace.id}`)}
+                    >
+                      <div className="shrink-0 size-9 relative  bg-[#616061] text-white font-semibold text-lg rounded-lg flex items-center justify-center mr-2">
+                        {workspace.name.charAt(0).toUpperCase()}
+                      </div>
+                      <div className="truncate">
+                        <p className="truncate">{workspace?.name}</p>
+                        <p className="text-xs text-muted-foreground font-normal">
+                          5 channels
+                        </p>
+                      </div>
+                    </CommandItem>
+                  ))}
+                </ScrollArea>
+              </CommandGroup>
+            )}
             <CommandGroup heading="Create new workspace">
               <CommandItem
                 className="cursor-pointer"
@@ -101,17 +105,6 @@ function WorkspaceSwitcher() {
         </Command>
       </PopoverContent>
     </Popover>
-    // <Command>
-    //   <CommandInput placeholder="Search workspaces" />
-    //   <CommandList>
-    //     <CommandEmpty>No workspaces found.</CommandEmpty>
-    //     <CommandGroup heading="Workspaces">
-    //       {filteredWorkspaces?.map((workspace) => (
-    //         <CommandItem>{workspace.name}</CommandItem>
-    //       ))}
-    //     </CommandGroup>
-    //   </CommandList>
-    // </Command>
   );
 }
 

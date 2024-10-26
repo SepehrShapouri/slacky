@@ -8,7 +8,15 @@ export async function GET(_req: Request) {
     if (!user)
       return NextResponse.json({ error: "Unauthenticated" }, { status: 403 });
 
-    const workspaces = await db.workspaces.findMany();
+    const workspaces = await db.workspaces.findMany({
+      where: {
+        members: {
+          some: {
+            userId: user.id,
+          },
+        },
+      },
+    });
     return NextResponse.json(workspaces, { status: 200 });
   } catch (error) {
     console.error(error);
@@ -34,6 +42,14 @@ export async function POST(req: Request) {
         joinCode,
         name,
         userId: user.id,
+        creatorId: user.id,
+      },
+    });
+    await db.member.create({
+      data: {
+        role: "ADMIN",
+        userId: user.id,
+        workspaceId: workspace.id,
       },
     });
     return NextResponse.json(workspace, { status: 200 });

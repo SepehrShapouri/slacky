@@ -7,6 +7,7 @@ import { useEffect, useMemo } from "react";
 export default function Home() {
   const [open, setOpen] = useCreateWorkspaceModalAtom();
   const { isLoading, workspaces } = useGetWorkspaces();
+  
   const router = useRouter();
   const firstWorkspaceId = useMemo(() => workspaces?.[0]?.id, [workspaces]);
   console.log(firstWorkspaceId,workspaces)

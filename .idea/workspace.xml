@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="215e1ba9-d896-4159-a02d-54e3f287248a" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/prisma/schema.prisma" beforeDir="false" afterPath="$PROJECT_DIR$/prisma/schema.prisma" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/api/workspaces/[workspaceId]/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/api/workspaces/[workspaceId]/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/api/workspaces/route.ts" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/api/workspaces/route.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/workspace/[workspaceId]/SidebarButton.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/workspace/[workspaceId]/layout.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/workspace/[workspaceId]/layout.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/workspace/[workspaceId]/page.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/app/workspace/[workspaceId]/page.tsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/workspace/[workspaceId]/sidebar.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/workspace/[workspaceId]/toolbar.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app/workspace/[workspaceId]/workspace-switcher.tsx" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/features/workspaces/components/create-workspace-modal.tsx" beforeDir="false" afterPath="$PROJECT_DIR$/src/features/workspaces/components/create-workspace-modal.tsx" afterDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="ProjectColorInfo"><![CDATA[{
+  "associatedIndex": 5
+}]]></component>
+  <component name="ProjectId" id="2nydfNDVeapt5j4V27djgXzFcP1" />
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "node.js.detected.package.eslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "nodejs_package_manager_path": "yarn",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
+  }
+}]]></component>
+  <component name="SharedIndexes">
+    <attachedChunks>
+      <set>
+        <option value="bundled-js-predefined-d6986cc7102b-5c90d61e3bab-JavaScript-WS-242.23726.96" />
+      </set>
+    </attachedChunks>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="215e1ba9-d896-4159-a02d-54e3f287248a" name="Changes" comment="" />
+      <created>1729949351802</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1729949351802</updated>
+      <workItem from="1729949352865" duration="68000" />
+    </task>
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+</project>
