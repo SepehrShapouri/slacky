@@ -24,13 +24,12 @@ import { useRouter } from "next/navigation";
 function WorkspaceSwitcher() {
   const router = useRouter();
   const [_open, setOpen] = useCreateWorkspaceModalAtom();
-console.log(_open)
   const workspaceId = useWorkspaceId();
   const { workspaces, isLoading: isWorkspacesLoading } = useGetWorkspaces();
-  const { workspace, isLoading: isWorkspaceLoading } = useGetWorkspace({
+  const { workspace, isLoading: isWorkspaceLoading ,error} = useGetWorkspace({
     id: workspaceId,
   });
-
+console.log(error)
   const filteredWorkspaces = workspaces?.filter(
     (workspace) => workspace.id != workspaceId
   );

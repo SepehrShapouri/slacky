@@ -1,5 +1,6 @@
 import { db } from "@/db";
 import { getCurrentSession } from "@/features/auth/lib/server/session";
+import { generateJoinCode } from "@/features/workspaces/lib/utils";
 import { NextResponse } from "next/server";
 
 export async function GET(_req: Request) {
@@ -35,7 +36,7 @@ export async function POST(req: Request) {
     //TODO:create a proper joinCode
     const body: { name: string } = await req.json();
     const { name } = body;
-    const joinCode = "123456";
+    const joinCode = generateJoinCode()
 
     const workspace = await db.workspaces.create({
       data: {

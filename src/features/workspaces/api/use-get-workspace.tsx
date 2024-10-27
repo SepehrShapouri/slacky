@@ -5,10 +5,11 @@ type useGetWorkspaceProps = {
   id: string;
 };
 export function useGetWorkspace({ id }: useGetWorkspaceProps) {
-  const { data: workspace, isLoading } = useQuery({
+  const { data: workspace, isLoading,error } = useQuery({
     queryKey: ["workspaces", id],
     queryFn: () =>
       api.get(`/api/workspaces/${id}`).json<Workspaces | undefined | null>(),
   });
-  return { workspace, isLoading };
+  console.log(error)
+  return { workspace, isLoading,error };
 }
