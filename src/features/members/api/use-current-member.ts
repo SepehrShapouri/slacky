@@ -5,12 +5,12 @@ type useCurrentMemberProps = {
   workspaceId: string;
 };
 export function useCurrentMember({ workspaceId }: useCurrentMemberProps) {
-  const { data: member ,isLoading,error,isError} = useQuery({
+  const { data: member ,isLoading:isMemberLoading,error,isError} = useQuery({
     queryKey: ["current-member", workspaceId],
     queryFn: () =>
       api
         .get(`/api/workspaces/${workspaceId}/members/current`)
         .json<Member | undefined | null>(),
   });
-  return { member,isLoading,error,isError}
+  return { member,isMemberLoading,error,isError}
 }

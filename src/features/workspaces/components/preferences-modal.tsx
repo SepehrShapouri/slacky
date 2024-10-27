@@ -38,8 +38,6 @@ function PreferencesModal({
   );
   const workspaceId = useWorkspaceId();
   const {
-    error,
-    isError,
     isPending: isUpdatingWorkspace,
     updateWorkspace,
   } = useUpdateWorkspace();

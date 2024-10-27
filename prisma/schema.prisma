@@ -23,15 +23,16 @@ model User {
 }
 
 model Workspaces {
-  id        String   @id @default(cuid())
+  id        String     @id @default(cuid())
   name      String
   userId    Int
-  creator   User     @relation("WorkspaceCreator", fields: [creatorId], references: [id])
+  creator   User       @relation("WorkspaceCreator", fields: [creatorId], references: [id])
   creatorId Int
   joinCode  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
   members   Member[]
+  Channels  Channels[]
 }
 
 model Session {
@@ -57,4 +58,11 @@ model Member {
 enum Role {
   ADMIN
   MEMBER
+}
+
+model Channels {
+  id           String     @id @default(cuid())
+  name         String
+  workspace    Workspaces @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId String
 }

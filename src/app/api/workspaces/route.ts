@@ -33,31 +33,47 @@ export async function POST(req: Request) {
     const { user } = await getCurrentSession();
     if (!user)
       return NextResponse.json({ error: "Unauthenticated" }, { status: 403 });
-    //TODO:create a proper joinCode
+
     const body: { name: string } = await req.json();
     const { name } = body;
-    const joinCode = generateJoinCode()
+    const joinCode = generateJoinCode();
 
-    const workspace = await db.workspaces.create({
-      data: {
-        joinCode,
-        name,
-        userId: user.id,
-        creatorId: user.id,
-      },
+    const workspace = await db.$transaction(async (tx) => {
+      // Create the workspace
+      const workspace = await tx.workspaces.create({
+        data: {
+          joinCode,
+          name,
+          userId: user.id,
+          creatorId: user.id,
+        },
+      });
+
+      // Create the member
+      await tx.member.create({
+        data: {
+          role: "ADMIN",
+          userId: user.id,
+          workspaceId: workspace.id,
+        },
+      });
+
+      // Create the channel
+      await tx.channels.create({
+        data: {
+          name: "general",
+          workspaceId: workspace.id,
+        },
+      });
+
+      return workspace;
     });
-    await db.member.create({
-      data: {
-        role: "ADMIN",
-        userId: user.id,
-        workspaceId: workspace.id,
-      },
-    });
+
     return NextResponse.json(workspace, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error },
       { status: 500 }
     );
   }
