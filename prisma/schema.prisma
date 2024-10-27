@@ -46,9 +46,9 @@ model Member {
   id          Int        @id @default(autoincrement())
   role        Role
   joinedAt    DateTime   @default(now())
-  user        User       @relation(fields: [userId], references: [id])
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId      Int
-  workspace   Workspaces @relation(fields: [workspaceId], references: [id])
+  workspace   Workspaces @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   workspaceId String
 
   @@unique([userId, workspaceId])
