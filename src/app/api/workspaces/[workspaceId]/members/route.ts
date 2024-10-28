@@ -10,6 +10,15 @@ export async function GET(
     const { user } = await getCurrentSession();
     if (!user)
       return NextResponse.json({ error: "Unauthenticated" }, { status: 403 });
+    const workspace = await db.workspaces.findUnique({
+      where: { id: workspaceId },
+    });
+    if (!workspace) {
+      return NextResponse.json(
+        { error: "workspace not found" },
+        { status: 404 }
+      );
+    }
     const userMember = await db.member.findUnique({
       where: {
         userId_workspaceId: {

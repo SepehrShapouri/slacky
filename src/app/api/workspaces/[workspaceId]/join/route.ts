@@ -1,10 +1,8 @@
 import { db } from "@/db";
 import { getCurrentSession } from "@/features/auth/lib/server/session";
-import { generateJoinCode } from "@/features/workspaces/lib/utils";
-import { error } from "console";
 import { NextResponse } from "next/server";
 
-export async function PATCH(
+export async function POST(
   req: Request,
   { params: { workspaceId } }: { params: { workspaceId: string } }
 ) {
@@ -12,6 +10,10 @@ export async function PATCH(
     const { user } = await getCurrentSession();
     if (!user)
       return NextResponse.json({ error: "Unauthenticated" }, { status: 403 });
+
+    const body: { joinCode: string } = await req.json();
+    const { joinCode } = body;
+    console.log(joinCode,body)
     const workspace = await db.workspaces.findUnique({
       where: { id: workspaceId },
     });
@@ -21,7 +23,16 @@ export async function PATCH(
         { status: 404 }
       );
     }
-    const member = await db.member.findUnique({
+    if (
+      workspace.joinCode.toLocaleLowerCase() !== joinCode.toLocaleLowerCase()
+    ) {
+    
+      return NextResponse.json(
+        { error: "Invite code is invalid or expired" },
+        { status: 401 }
+      );
+    }
+    const existingMember = await db.member.findUnique({
       where: {
         userId_workspaceId: {
           userId: user.id,
@@ -29,23 +40,22 @@ export async function PATCH(
         },
       },
     });
-    if (member?.role !== "ADMIN")
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    if (!member) {
+    if (existingMember) {
       return NextResponse.json(
-        { error: "This member doesnt exist" },
-        { status: 404 }
+        { error: "You are already a member of this workspace" },
+        { status: 400 }
       );
     }
 
-    const newJoinCode = generateJoinCode();
-    const updatedWorkspace = await db.workspaces.update({
-      where: { id: workspaceId },
+    const newMember = await db.member.create({
       data: {
-        joinCode: newJoinCode,
+        role: "MEMBER",
+        userId: user.id,
+        workspaceId,
       },
     });
-    return NextResponse.json(updatedWorkspace, { status: 200 });
+
+    return NextResponse.json({ newMember, workspace }, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json(

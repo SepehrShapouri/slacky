@@ -18,6 +18,7 @@ export async function GET(_req: Request) {
         },
       },
     });
+    
     return NextResponse.json(workspaces, { status: 200 });
   } catch (error) {
     console.error(error);
@@ -72,9 +73,6 @@ export async function POST(req: Request) {
     return NextResponse.json(workspace, { status: 200 });
   } catch (error) {
     console.error(error);
-    return NextResponse.json(
-      { error },
-      { status: 500 }
-    );
+    return NextResponse.json({ error }, { status: 500 });
   }
 }

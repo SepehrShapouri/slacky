@@ -15,15 +15,22 @@ export async function GET(
     const workspace = await db.workspaces.findUnique({
       where: {
         id: workspaceId,
-        members: {
-          some: {
-            userId: user.id,
-            workspaceId,
-          },
+      },
+    });
+    const member = await db.member.findUnique({
+      where: {
+        userId_workspaceId: {
+          userId: user.id,
+          workspaceId,
         },
       },
     });
-
+    if (!member) {
+      return NextResponse.json(
+        { error: "You are not a member of this workspace" },
+        { status: 401 }
+      );
+    }
     if (!workspace) {
       return NextResponse.json(
         {
@@ -54,6 +61,16 @@ export async function PATCH(
 
     const body: { name: string } = await req.json();
     const { name } = body;
+    const workspace = await db.workspaces.findUnique({
+      where: { id: workspaceId },
+    });
+    if (!workspace) {
+      return NextResponse.json(
+        { error: "workspace not found" },
+        { status: 404 }
+      );
+    }
+
     const member = await db.member.findUnique({
       where: {
         userId_workspaceId: {
@@ -92,7 +109,15 @@ export async function DELETE(
     const { user } = await getCurrentSession();
     if (!user)
       return NextResponse.json({ error: "Unauthenticated" }, { status: 403 });
-
+    const workspace = await db.workspaces.findUnique({
+      where: { id: workspaceId },
+    });
+    if (!workspace) {
+      return NextResponse.json(
+        { error: "workspace not found" },
+        { status: 404 }
+      );
+    }
     const member = await db.member.findUnique({
       where: {
         userId_workspaceId: {

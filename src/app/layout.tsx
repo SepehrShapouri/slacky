@@ -6,7 +6,7 @@ import { CreateWorkspaceModal } from "@/features/workspaces/components/create-wo
 import { Modals } from "@/components/modals";
 import { Toaster } from "@/components/ui/sonner";
 
-const inter = Inter({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["cyrillic"] });
 
 export const metadata: Metadata = {
   title: "Create Next App",
