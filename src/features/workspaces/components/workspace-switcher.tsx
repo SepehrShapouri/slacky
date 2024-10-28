@@ -29,7 +29,7 @@ function WorkspaceSwitcher() {
   const { workspace, isLoading: isWorkspaceLoading ,error} = useGetWorkspace({
     id: workspaceId,
   });
-console.log(error)
+
   const filteredWorkspaces = workspaces?.filter(
     (workspace) => workspace.id != workspaceId
   );

@@ -10,6 +10,6 @@ export function useGetWorkspace({ id }: useGetWorkspaceProps) {
     queryFn: () =>
       api.get(`/api/workspaces/${id}`).json<Workspaces | undefined | null>(),
   });
-  console.log(error)
+  
   return { workspace, isLoading,error };
 }

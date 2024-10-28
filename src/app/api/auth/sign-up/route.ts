@@ -18,7 +18,7 @@ export async function POST(req: Request) {
   try {
     const body: { email: string; password: string; fullname: string } =
       await req.json();
-    console.log(body);
+    
     const { email, password, fullname } = body;
 
     if (
@@ -47,9 +47,9 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-    console.log("reached safe email");
+    
     const strongPassword = await verifyPasswordStrength(password);
-    console.log("reached strong pass", strongPassword);
+    
     if (!strongPassword) {
       return NextResponse.json(
         {
@@ -59,9 +59,9 @@ export async function POST(req: Request) {
         { status: 400 }
       );
     }
-    console.log("reached strong pass");
+    
     const password_hash = await hashPassword(password);
-    console.log("reached hashed pass");
+    
     const user = await db.user.create({
       data: {
         fullname,
@@ -69,7 +69,7 @@ export async function POST(req: Request) {
         password_hash,
       },
     });
-    console.log("user created");
+    
     const sessionToken = generateSessionToken();
     const session = await createSession(sessionToken, user.id);
     setSessionTokenCookie(sessionToken, session.expiresAt);

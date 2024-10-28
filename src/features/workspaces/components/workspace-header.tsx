@@ -11,6 +11,7 @@ import { Workspaces } from "@prisma/client";
 import { ChevronDown, Settings, SquarePen, UserRoundPlus } from "lucide-react";
 import Hint from "@/components/hint";
 import PreferencesModal from "./preferences-modal";
+import InviteModal from "./invite-modal";
 
 type WorkspaceHeaderProps = {
   workspace: Workspaces;
@@ -18,11 +19,20 @@ type WorkspaceHeaderProps = {
 };
 function WorkspaceHeader({ workspace, isAdmin }: WorkspaceHeaderProps) {
   const [preferencesOpen, setPreferncesOpen] = useState<boolean>(false);
+  const [inviteOpen, setInviteOpen] = useState<boolean>(false);
+
   return (
     <>
+      <InviteModal
+        workspaceId={workspace.id}
+        open={inviteOpen}
+        setOpen={setInviteOpen}
+        workspaceName={workspace.name}
+        joinCode={workspace.joinCode}
+      />
       <PreferencesModal
         open={preferencesOpen}
-        setOpen={() => setPreferncesOpen(false)}
+        setOpen={setPreferncesOpen}
         initialValue={workspace.name}
       />
       <div className="flex items-center justify-between px-4 h-[49px] gap-0.5">
@@ -55,7 +65,7 @@ function WorkspaceHeader({ workspace, isAdmin }: WorkspaceHeaderProps) {
                 <DropdownMenuSeparator />
                 <DropdownMenuItem
                   className="cursor-pointer py-2 font-medium"
-                  onClick={() => {}}
+                  onClick={() => setInviteOpen(true)}
                 >
                   <UserRoundPlus className="text-[#5e2c5f]" /> Invite people to{" "}
                   {workspace.name}

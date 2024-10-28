@@ -10,7 +10,7 @@ export default function Home() {
   
   const router = useRouter();
   const firstWorkspaceId = useMemo(() => workspaces?.[0]?.id, [workspaces]);
-  console.log(firstWorkspaceId,workspaces)
+  
   useEffect(() => {
     if (isLoading) return;
     if (firstWorkspaceId) {

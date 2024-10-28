@@ -18,6 +18,7 @@ export async function GET(
         members: {
           some: {
             userId: user.id,
+            workspaceId,
           },
         },
       },
@@ -83,7 +84,6 @@ export async function PATCH(
   }
 }
 
-
 export async function DELETE(
   req: Request,
   { params: { workspaceId } }: { params: { workspaceId: string } }
@@ -121,9 +121,12 @@ export async function DELETE(
   } catch (error) {
     console.error(error);
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2003') {
+      if (error.code === "P2003") {
         return NextResponse.json(
-          { error: "Unable to delete workspace due to existing references. Please contact support." },
+          {
+            error:
+              "Unable to delete workspace due to existing references. Please contact support.",
+          },
           { status: 400 }
         );
       }

@@ -49,7 +49,7 @@ export const SignInCard = ({ setState }: SignInCardProps) => {
         push("/");
       }
     } catch (error) {
-      console.log(error);
+      console.error(error);
       if (isRedirectError(error)) {
         throw error;
       }
