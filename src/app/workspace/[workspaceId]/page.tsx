@@ -17,9 +17,7 @@ function page() {
   });
   const { channels, isChannelsLoading } = useGetChannels({ workspaceId });
   const { member, isMemberLoading } = useCurrentMember({ workspaceId });
-  const channelId = useMemo(() => {
-    return channels?.[0]?.id;
-  }, [channels]);
+  const channelId = channels?.[0]?.id;
   const isAdmin = useMemo(() => member?.role == "ADMIN", [member?.role]);
   useEffect(() => {
     if (
@@ -47,14 +45,14 @@ function page() {
     router,
     workspaceId,
   ]);
-  if (isWorkspaceLoading || isChannelsLoading) {
+  if (isWorkspaceLoading || isChannelsLoading || isMemberLoading) {
     return (
       <div className="h-full flex-1 flex items-center justify-center flex-col gap-2">
         <Loader2 className="size-6 animate-spin text-muted-foreground" />
       </div>
     );
   }
-  if (!workspace) {
+  if (!workspace || !member) {
     return (
       <div className="h-full flex-1 flex items-center justify-center flex-col gap-2">
         <TriangleAlert className="size-6 text-muted-foreground" />

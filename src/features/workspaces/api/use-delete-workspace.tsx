@@ -1,10 +1,6 @@
 import api from "@/lib/ky";
 import { Workspaces } from "@prisma/client";
 import { useMutation } from "@tanstack/react-query";
-import React, { useMemo } from "react";
-import { useGetWorkspaces } from "./use-get-workspaces";
-import { useRouter } from "next/navigation";
-import { toast } from "sonner";
 
 function useDeleteWorkspace() {
   const {

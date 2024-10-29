@@ -6,7 +6,9 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,
-  { params: { workspaceId } }: { params: { workspaceId: string } }
+  {
+    params: { workspaceId, channelId },
+  }: { params: { workspaceId: string; channelId: string } }
 ) {
   try {
     const { user } = await getCurrentSession();
@@ -17,9 +19,10 @@ export async function GET(
       where: {
         id: workspaceId,
       },
-      include:{
-        Channels:true,members:true
-      }
+      include: {
+        Channels: true,
+        members: true,
+      },
     });
     const member = await db.member.findUnique({
       where: {
@@ -44,7 +47,19 @@ export async function GET(
         { status: 404 }
       );
     }
-    return NextResponse.json(workspace, { status: 200 });
+    const channel = await db.channels.findUnique({
+      where: {
+        workspaceId,
+        id: channelId,
+      },
+    });
+    if (!channel) {
+      return NextResponse.json(
+        { error: "This channel doesnt exist" },
+        { status: 404 }
+      );
+    }
+    return NextResponse.json(channel, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
@@ -53,10 +68,11 @@ export async function GET(
     );
   }
 }
-
 export async function PATCH(
   req: Request,
-  { params: { workspaceId } }: { params: { workspaceId: string } }
+  {
+    params: { workspaceId, channelId },
+  }: { params: { workspaceId: string; channelId: string } }
 ) {
   try {
     const { user } = await getCurrentSession();
@@ -85,17 +101,27 @@ export async function PATCH(
     });
     if (member?.role !== "ADMIN")
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-
-    const updatedWorkspace = await db.workspaces.update({
+    const channel = await db.channels.findUnique({
       where: {
-        id: workspaceId,
+        id: channelId,
+        workspaceId,
+      },
+    });
+    if (!channel)
+      return NextResponse.json(
+        { error: "This channel doesnt exist" },
+        { status: 404 }
+      );
+    const updatedChannel = await db.channels.update({
+      where: {
+        id: channelId,
+        workspaceId,
       },
       data: {
         name,
       },
     });
-
-    return NextResponse.json(updatedWorkspace, { status: 200 });
+    return NextResponse.json(updatedChannel, { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
@@ -107,7 +133,9 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  { params: { workspaceId } }: { params: { workspaceId: string } }
+  {
+    params: { workspaceId, channelId },
+  }: { params: { workspaceId: string; channelId: string } }
 ) {
   try {
     const { user } = await getCurrentSession();
@@ -133,20 +161,24 @@ export async function DELETE(
     if (member?.role !== "ADMIN")
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
-    // Start a transaction
-    const deletedWorkspace = await db.$transaction(async (prisma) => {
-      // Delete all members associated with the workspace
-      await prisma.member.deleteMany({
-        where: { workspaceId },
-      });
-
-      // Delete the workspace
-      return prisma.workspaces.delete({
-        where: { id: workspaceId },
-      });
+    const channel = await db.channels.findUnique({
+      where: {
+        id: channelId,
+        workspaceId,
+      },
     });
-
-    return NextResponse.json(deletedWorkspace, { status: 200 });
+    if (!channel)
+      return NextResponse.json(
+        { error: "This channel doesnt exist" },
+        { status: 404 }
+      );
+    const deletedChannel = await db.channels.delete({
+      where: {
+        id: channelId,
+        workspaceId,
+      },
+    });
+    return NextResponse.json(deletedChannel, { status: 200 });
   } catch (error) {
     console.error(error);
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
