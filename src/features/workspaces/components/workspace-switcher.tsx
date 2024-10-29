@@ -33,6 +33,7 @@ function WorkspaceSwitcher() {
   const filteredWorkspaces = workspaces?.filter(
     (workspace) => workspace.id != workspaceId
   );
+  
   return (
     <Popover>
       <PopoverTrigger asChild>

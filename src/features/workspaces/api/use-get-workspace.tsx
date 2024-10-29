@@ -1,9 +1,10 @@
 import api from "@/lib/ky";
-import { Workspaces } from "@prisma/client";
+import { Channels, Member, Workspaces } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
 type useGetWorkspaceProps = {
   id: string;
 };
+type WorkspaceReturn = Workspaces & Member[] & Channels[]
 export function useGetWorkspace({ id }: useGetWorkspaceProps) {
   const { data: workspace, isLoading,error } = useQuery({
     queryKey: ["workspaces", id],

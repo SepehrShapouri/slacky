@@ -16,6 +16,9 @@ export async function GET(
       where: {
         id: workspaceId,
       },
+      include:{
+        Channels:true,members:true
+      }
     });
     const member = await db.member.findUnique({
       where: {

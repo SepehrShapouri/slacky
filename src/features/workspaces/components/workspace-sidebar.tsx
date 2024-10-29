@@ -10,6 +10,7 @@ import useGetChannels from "@/features/channels/api/use-get-channels";
 import WorkspaceSection from "./workspace-section";
 import useGetMembers from "@/features/members/api/use-get-members";
 import UserItem from "./user-item";
+
 import { useCreateChannelModalAtom } from "@/features/channels/store/use-create-channel-modal";
 import {
   AlertTriangle,
@@ -18,8 +19,10 @@ import {
   MessageSquareText,
   SendHorizonal,
 } from "lucide-react";
+import { useChannelId } from "@/hooks/use-channel-id";
 
 function WorkspaceSidebar() {
+  const channelId = useChannelId()
   const workspaceId = useWorkspaceId();
   const { isLoading, workspace } = useGetWorkspace({ id: workspaceId });
   const { channels } = useGetChannels({ workspaceId });
@@ -61,6 +64,7 @@ function WorkspaceSidebar() {
             icon={HashIcon}
             label={item.name}
             id={item.id}
+            variant={channelId === item.id ? "active" : 'default'}
           />
         ))}
       </WorkspaceSection>
