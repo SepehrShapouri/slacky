@@ -38,6 +38,7 @@
     "next": "14.2.15",
     "next-themes": "^0.3.0",
     "prisma": "^5.21.1",
+    "quill": "^2.0.2",
     "react": "^18",
     "react-dom": "^18",
     "react-hook-form": "^7.53.1",

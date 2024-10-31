@@ -1,5 +1,6 @@
 "use client";
 import useGetChannel from "@/features/channels/api/use-get-channel";
+import ChatInput from "@/features/channels/components/chat-input";
 import Header from "@/features/channels/components/header";
 import { useChannelId } from "@/hooks/use-channel-id";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
@@ -31,6 +32,8 @@ function page() {
   return (
     <div className="flex flex-col h-full">
       <Header title={channel.name} />
+      <div className="flex-1" />
+      <ChatInput placeholder={`Message # ${channel.name}`} />
     </div>
   );
 }
