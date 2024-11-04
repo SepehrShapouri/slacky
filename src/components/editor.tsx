@@ -16,13 +16,14 @@ import { Delta, Op } from "quill/core";
 import { cn } from "@/lib/utils";
 import { EmojiPopover } from "./emoji-popover";
 import Image from "next/image";
+import useMediaUpload from "@/hooks/use-media-upload";
 type EditorValue = {
-  image: File | null;
+  attachments?: string[];
   body: string;
 };
 type EditorProps = {
   variant?: "create" | "update";
-  onSubmit: ({ image, body }: EditorValue) => void;
+  onSubmit: ({ attachments, body }: EditorValue) => void;
   onCancel?: () => void;
   placeholder?: string;
   defaultValue?: Delta | Op[];
@@ -49,14 +50,20 @@ const Editor = ({
   const defaultValueRef = useRef(defaultValue);
   const disabledRef = useRef(disabled);
   const imageElementRef = useRef<HTMLInputElement>(null);
-
+  const {
+    attachments,
+    isUploading,
+    startUpload,
+    uploadProgress,
+    removeAttachment,
+  } = useMediaUpload();
   useLayoutEffect(() => {
     submitRef.current = onSubmit;
     placeHolderRef.current = placeholder;
     defaultValueRef.current = defaultValue;
     disabledRef.current = disabled;
   });
-
+console.log(attachments,'UPLOADED')
   useEffect(() => {
     if (!containerRef.current) return;
     const container = containerRef.current;
@@ -78,8 +85,14 @@ const Editor = ({
             enter: {
               key: "Enter",
               handler: () => {
-                //TODO Submit form
-                return;
+                const text = quill.getText();
+                const addedImage = imageElementRef.current?.files?.[0] || null;
+                const isEmpty =
+                  !addedImage &&
+                  text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
+                if (isEmpty) return;
+                const body = JSON.stringify(quill.getContents());
+                submitRef.current?.({ body });
               },
             },
             shift_enter: {
@@ -133,42 +146,53 @@ const Editor = ({
 
     quill?.insertText(quill?.getSelection()?.index || 0, emoji.native);
   }
-  const isEmpty = text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
-
+  const isEmpty = !attachments && text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
+  console.log(attachments.map((item)=>item.url));
   return (
     <div className="flex flex-col">
       <input
         type="file"
         accept="image/*"
         ref={imageElementRef}
-        onChange={(e) => setImage(e.target.files![0])}
+        onChange={(e) => startUpload([e.target.files![0]])}
         className="hidden"
       />
       <div className="flex flex-col border border-slate-200 rounded-md overflow-hidden focus-within:border-slate-300 focus-within:shadow-sm transition bg-white">
         <div ref={containerRef} className="h-full ql-custom" />
-        {!!image && (
-          <div className="p-2">
-            <div className="relative size-[62px] flex items-center justify-center group/image">
-              <Hint label="remove image">
-                <button
-                  onClick={() => {
-                    setImage(null);
-                    imageElementRef.current!.value = "";
-                  }}
-                  className="hidden group-hover/image:flex rounded-full bg-black/70 hover:bg-black absolute -top-2.5 -right-2.5 text-white size-6 z-[4] border-2 border-white items-center justify-center"
+        <div className="flex">
+          {!!attachments &&
+            attachments.map((item) => {
+              return (
+                <div
+                  className={cn(
+                    "p-2 relative transition-opacity",
+                    item.isUploading && "opacity-50"
+                  )}
                 >
-                  <XIcon className="size-3.5" />
-                </button>
-              </Hint>
-              <Image
-                src={URL.createObjectURL(image)}
-                alt="uploaded image"
-                fill
-                className="rounded-xl overflow-hidden border object-cover"
-              />
-            </div>
-          </div>
-        )}
+                  <div className="relative size-[62px] flex items-center justify-center group/image">
+                    {!item.isUploading && (
+                      <Hint label="remove image">
+                        <button
+                          onClick={() => {
+                            removeAttachment(item.file.name);
+                          }}
+                          className="hidden group-hover/image:flex rounded-full bg-black/70 hover:bg-black absolute -top-2.5 -right-2.5 text-white size-6 z-[4] border-2 border-white items-center justify-center"
+                        >
+                          <XIcon className="size-3.5" />
+                        </button>
+                      </Hint>
+                    )}
+                    <Image
+                      src={URL.createObjectURL(item.file)}
+                      alt="uploaded image"
+                      fill
+                      className="rounded-xl overflow-hidden border object-cover"
+                    />
+                  </div>
+                </div>
+              );
+            })}
+        </div>
         <div className="flex px-2 pb-2 z-[5]">
           <Hint
             label={isToolbarVisible ? "Hide formatting" : "Show formatting"}
@@ -204,7 +228,7 @@ const Editor = ({
               <Button
                 variant="secondary"
                 size="sm"
-                onClick={() => {}}
+                onClick={onCancel}
                 disabled={disabled}
               >
                 Cancel
@@ -212,7 +236,12 @@ const Editor = ({
               <Button
                 disabled={disabled || isEmpty}
                 size="sm"
-                onClick={() => {}}
+                onClick={() => {
+                  onSubmit({
+                    body: JSON.stringify(quillRef.current?.getContents()),
+                    attachments:attachments.map((item)=>item.url).filter((i)=>i!== undefined)
+                  });
+                }}
                 className=" bg-[#007a5a] hover:bg-[#007a5a]/80 text-white"
               >
                 Save
@@ -221,7 +250,12 @@ const Editor = ({
           )}
           {variant == "create" && (
             <Button
-              onClick={() => {}}
+              onClick={() => {
+                onSubmit({
+                  body: JSON.stringify(quillRef.current?.getContents()),
+                  attachments:attachments.map((item)=>item.url).filter((i)=>i!== undefined)
+                });
+              }}
               disabled={disabled || isEmpty}
               size="iconSm"
               className={cn(

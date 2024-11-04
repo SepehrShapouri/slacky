@@ -14,6 +14,11 @@ const nextConfig = {
         pathname: '/**',
         
       },
+      {
+        protocol:"https",
+        hostname:"utfs.io",
+        pathname:"/**"
+      }
     ],
   },
 };

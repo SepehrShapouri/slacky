@@ -33,6 +33,7 @@ model Workspaces {
   updatedAt DateTime   @updatedAt
   members   Member[]
   Channels  Channels[]
+  Messages  Messages[]
 }
 
 model Session {
@@ -51,6 +52,7 @@ model Member {
   userId      Int
   workspace   Workspaces @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   workspaceId String
+  Messages    Messages[]
 
   @@unique([userId, workspaceId])
 }
@@ -61,8 +63,36 @@ enum Role {
 }
 
 model Channels {
-  id           String     @id @default(cuid())
-  name         String
-  workspace    Workspaces @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  id          String     @id @default(cuid())
+  name        String
+  workspace   Workspaces @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   workspaceId String
+  Messages    Messages[]
+}
+
+model Messages {
+  id          String   @id @default(cuid())
+  body        String
+  attachments String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  member   Member @relation(fields: [memberId], references: [id])
+  memberId Int
+
+  channel   Channels? @relation(fields: [channelId], references: [id])
+  channelId String?
+
+  parent   Messages? @relation("MessageReplies", fields: [parentId], references: [id])
+  parentId String?
+
+  replies Messages[] @relation("MessageReplies")
+
+  workspace   Workspaces @relation(fields: [workspaceId], references: [id])
+  workspaceId String
+
+  @@index([channelId])
+  @@index([memberId])
+  @@index([parentId])
+  @@index([workspaceId])
 }

@@ -5,6 +5,9 @@ import Providers from "@/components/providers/providers";
 import { CreateWorkspaceModal } from "@/features/workspaces/components/create-workspace-modal";
 import { Modals } from "@/components/modals";
 import { Toaster } from "@/components/ui/sonner";
+import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
+import { extractRouterConfig } from "uploadthing/server";
+import { fileRouter } from "@/app/api/uploadthing/core";
 
 const inter = Inter({ subsets: ["cyrillic"] });
 
@@ -23,6 +26,7 @@ export default function RootLayout({
       <body className={`${inter.className} antialiased`}>
         <Providers>
           <Modals />
+          <NextSSRPlugin routerConfig={extractRouterConfig(fileRouter)} />
           {children}
           <Toaster />
         </Providers>
