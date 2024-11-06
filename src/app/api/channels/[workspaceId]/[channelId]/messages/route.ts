@@ -34,7 +34,6 @@ export async function GET(
         { status: 401 }
       );
 
-      
     const messages = await db.messages.findMany({
       where: {
         channelId,
@@ -53,13 +52,16 @@ export async function GET(
           },
         },
       },
+      orderBy:{
+        createdAt:'desc'
+      }
     });
-
+    
     return NextResponse.json(messages, { status: 200 });
   } catch (error) {
     return NextResponse.json(
       {
-        error
+        error,
       },
       { status: 404 }
     );

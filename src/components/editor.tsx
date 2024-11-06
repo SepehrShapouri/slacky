@@ -1,5 +1,13 @@
+import useMediaUpload from "@/hooks/use-media-upload";
+import { cn } from "@/lib/utils";
+import hljs from "highlight.js";
+import { ImageIcon, Smile, XIcon } from "lucide-react";
+import Image from "next/image";
 import Quill, { QuillOptions } from "quill";
+import { Delta, Op } from "quill/core";
 import "quill/dist/quill.snow.css";
+import 'highlight.js/styles/monokai-sublime.css';
+
 import {
   MutableRefObject,
   useEffect,
@@ -7,16 +15,12 @@ import {
   useRef,
   useState,
 } from "react";
-import { Button } from "./ui/button";
-import { PiTextAa } from "react-icons/pi";
-import { ImageIcon, Smile, XIcon } from "lucide-react";
 import { MdSend } from "react-icons/md";
-import Hint from "./hint";
-import { Delta, Op } from "quill/core";
-import { cn } from "@/lib/utils";
+import { PiTextAa } from "react-icons/pi";
 import { EmojiPopover } from "./emoji-popover";
-import Image from "next/image";
-import useMediaUpload from "@/hooks/use-media-upload";
+import Hint from "./hint";
+import { Button } from "./ui/button";
+
 type EditorValue = {
   attachments?: string[];
   body: string;
@@ -40,7 +44,7 @@ const Editor = ({
   placeholder = "Write something",
 }: EditorProps) => {
   const [text, setText] = useState<string>("");
-  const [image, setImage] = useState<File | null>(null);
+
   const [isToolbarVisible, setIsToolbarVisible] = useState<boolean>(true);
 
   const containerRef = useRef<HTMLDivElement>(null);
@@ -54,7 +58,7 @@ const Editor = ({
     attachments,
     isUploading,
     startUpload,
-    uploadProgress,
+
     removeAttachment,
   } = useMediaUpload();
   useLayoutEffect(() => {
@@ -63,7 +67,7 @@ const Editor = ({
     defaultValueRef.current = defaultValue;
     disabledRef.current = disabled;
   });
-console.log(attachments,'UPLOADED')
+
   useEffect(() => {
     if (!containerRef.current) return;
     const container = containerRef.current;
@@ -77,9 +81,14 @@ console.log(attachments,'UPLOADED')
       modules: {
         toolbar: [
           ["bold", "italic", "strike"],
-          ["link"],
-          [{ list: "ordered" }, { list: "bullet" }],
+          [{ direction: "rtl" }],
+
+          [{ list: "ordered" }, { list: "bullet" }, { list: "check" }],
+          ["code-block"],
         ],
+        syntax: {
+          highlight: (text: any) => hljs.highlightAuto(text).value,
+        },
         keyboard: {
           bindings: {
             enter: {
@@ -146,8 +155,9 @@ console.log(attachments,'UPLOADED')
 
     quill?.insertText(quill?.getSelection()?.index || 0, emoji.native);
   }
-  const isEmpty = !attachments && text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
-  console.log(attachments.map((item)=>item.url));
+  const isEmpty =
+    !attachments && text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
+
   return (
     <div className="flex flex-col">
       <input
@@ -239,7 +249,9 @@ console.log(attachments,'UPLOADED')
                 onClick={() => {
                   onSubmit({
                     body: JSON.stringify(quillRef.current?.getContents()),
-                    attachments:attachments.map((item)=>item.url).filter((i)=>i!== undefined)
+                    attachments: attachments
+                      .map((item) => item.url)
+                      .filter((i) => i !== undefined),
                   });
                 }}
                 className=" bg-[#007a5a] hover:bg-[#007a5a]/80 text-white"
@@ -253,10 +265,12 @@ console.log(attachments,'UPLOADED')
               onClick={() => {
                 onSubmit({
                   body: JSON.stringify(quillRef.current?.getContents()),
-                  attachments:attachments.map((item)=>item.url).filter((i)=>i!== undefined)
+                  attachments: attachments
+                    .map((item) => item.url)
+                    .filter((i) => i !== undefined),
                 });
               }}
-              disabled={disabled || isEmpty}
+              disabled={disabled || isEmpty || isUploading}
               size="iconSm"
               className={cn(
                 "ml-auto",

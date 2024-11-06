@@ -13,7 +13,7 @@ export async function POST(
 
     const body: { joinCode: string } = await req.json();
     const { joinCode } = body;
-    console.log(joinCode,body)
+    
     const workspace = await db.workspaces.findUnique({
       where: { id: workspaceId },
     });

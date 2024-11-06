@@ -96,31 +96,48 @@ body {
   height: unset !important;
 }
 
-.ql-editor{
+.ql-editor {
   line-height: 22px !important;
-  padding:  8px 12px !important;
-  color:#1d1c1d !important;
+  padding: 8px 12px !important;
+  color: #1d1c1d !important;
   font-weight: 400 !important;
-  font-family: "Lato",sans-serif !important;
+  font-family: "Lato", sans-serif !important;
   font-size: 14px !important;
 }
-.ql-editor a{
+.ql-editor a {
   color: #1264a3 !important;
 }
-.ql-editor a:hover{
+.ql-editor a:hover {
   text-decoration: underline !important;
 }
-.ql-renderer { 
+.ql-renderer {
   padding: 0 !important;
 }
-.ql-editor::before{
+.ql-editor::before {
   left: 12px !important;
-  font-family: "Lato",sans-serif !important;
-  color:#8d8d8d !important;
-  font-style:normal !important;
+  font-family: "Lato", sans-serif !important;
+  color: #8d8d8d !important;
+  font-style: normal !important;
   font-size: 14px !important;
   font-weight: 400 !important;
-  @apply truncate
+  @apply truncate;
 }
 
+.messages-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: #dcdcdc #f8f8f8;
+}
 
+.ql-code-block-container {
+}
+select.ql-ui {
+  border-radius: 10px !important;
+  background-color: black !important;
+  color: white !important;
+  padding: 0.1rem !important;
+  padding-left: 0.3rem !important;
+  padding-right: 0.3rem !important;
+}
+div.ql-code-block{
+  padding: 0 0.5rem !important;
+}

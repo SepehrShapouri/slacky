@@ -1,3 +1,4 @@
+import { ModifiedMessage } from "@/features/messages/lib/types";
 import api from "@/lib/ky";
 import { Messages } from "@prisma/client";
 import { useQuery } from "@tanstack/react-query";
@@ -14,8 +15,9 @@ export  function useGetMessages({
     queryFn: () =>
       api
         .get(`/api/channels/${workspaceId}/${channelId}/messages`)
-        .json<Messages[]>(),
+        .json<ModifiedMessage[]>(),
   });
+  
 
   return{messages,isMessagesLoading}
 }

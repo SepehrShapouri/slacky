@@ -1,12 +1,15 @@
 "use client";
 import ChatComponent from "@/components/chat";
+import MessageList from "@/components/message-list";
 import useGetChannel from "@/features/channels/api/use-get-channel";
 import { useGetMessages } from "@/features/channels/api/use-get-channel-messages";
 import ChatInput from "@/features/channels/components/chat-input";
 import Header from "@/features/channels/components/header";
 import { useCurrentMember } from "@/features/members/api/use-current-member";
+import { ModifiedMessage } from "@/features/messages/lib/types";
 import { generateJoinCode } from "@/features/workspaces/lib/utils";
 import { useChannelId } from "@/hooks/use-channel-id";
+import useSession from "@/hooks/use-session";
 import { useSocket } from "@/hooks/use-socket";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { Loader2, TriangleAlert } from "lucide-react";
@@ -17,23 +20,13 @@ type EditorValue = {
   attachments?: string[];
   body: string;
 };
-interface Message {
-  id: string;
-  body: string;
-  memberId: number;
-  workspaceId: string;
-  channelId: string;
-  attachments?: string[];
-  key?: string;
-  isPending?: boolean;
-}
-
 function Page() {
   const [editorKey, setEditorkey] = useState<number>(0);
-  const [messages, setMessages] = useState<Message[]>([]);
+  const [messages, setMessages] = useState<ModifiedMessage[]>([]);
   const workspaceId = useWorkspaceId();
   const channelId = useChannelId();
   const { member } = useCurrentMember({ workspaceId });
+  const {user} = useSession()
   const { messages: initialMessages, isMessagesLoading } = useGetMessages({
     workspaceId,
     channelId,
@@ -48,14 +41,23 @@ function Page() {
     if (isMessagesLoading) return;
 
     if (!initialMessages) return;
-    const formattedMessages: Message[] = initialMessages.map((item) => ({
-      body: item.body,
-      channelId: item.channelId!,
-      id: item.id,
-      memberId: item.memberId,
-      workspaceId: item.workspaceId,
-      attachments: item.attachments,
-    }));
+    const formattedMessages: ModifiedMessage[] = initialMessages.map(
+      (item) => ({
+        body: item.body,
+        channelId: item.channelId!,
+        id: item.id,
+        memberId: item.memberId,
+        workspaceId: item.workspaceId,
+        attachments: item.attachments,
+        conversationId: null,
+        parentId: null,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
+        member:{
+          ...item.member!
+        }
+      })
+    );
     setMessages(formattedMessages);
   }, [initialMessages, setMessages, isMessagesLoading]);
 
@@ -63,7 +65,8 @@ function Page() {
     if (socket && channelId) {
       socket.emit("join-room", channelId);
 
-      socket.on("new-message", (message: Message) => {
+      socket.on("new-message", (message: ModifiedMessage) => {
+        console.log(message,'from server')
         setMessages((prevMessages) => {
           const existingMessageIndex = prevMessages.findIndex(
             (m) => m.key === message.key
@@ -78,7 +81,7 @@ function Page() {
             return updatedMessages;
           } else {
             // Add the new message if it doesn't exist
-            return [...prevMessages, message];
+            return [message,...prevMessages];
           }
         });
       });
@@ -104,10 +107,10 @@ function Page() {
 
   const onSubmit = useCallback(
     ({ body, attachments }: EditorValue) => {
-      console.log(attachments,'in submit')
+      
       if (socket && body && member && workspaceId && channelId) {
         const key = generateJoinCode();
-        const newMessage = {
+        const newMessage: ModifiedMessage = {
           body,
           memberId: member.id,
           workspaceId,
@@ -116,11 +119,19 @@ function Page() {
           key,
           id: key, // Temporary ID
           isPending: true,
-          attachments
+          attachments: attachments || [],
+          conversationId: null,
+          parentId: null,
+          createdAt: new Date(),
+          member:{...member,user:{
+            email:user?.email!,
+            fullname:user?.fullname!,
+            avatarUrl:user?.avatarUrl || undefined
+          }}
         };
-        console.log(newMessage)
+        console.log(newMessage,'from client')
         // Optimistically add the message
-        setMessages((prevMessages) => [...prevMessages, newMessage]);
+        setMessages((prevMessages) => [newMessage, ...prevMessages]);
 
         // Emit the message to the server
         socket.emit("send-message", newMessage);
@@ -129,7 +140,7 @@ function Page() {
     },
     [socket, member, workspaceId, channelId]
   );
-
+  
   if (isChannelLoading)
     return (
       <div className="h-full flex-1 flex items-center justify-center">
@@ -150,23 +161,15 @@ function Page() {
   return (
     <div className="flex flex-col h-full">
       <Header title={channel.name} />
-      <div className="flex-1 overflow-y-auto">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`mb-2 p-2 rounded ${
-              message.isPending ? "bg-gray-200" : "bg-gray-100"
-            }`}
-          >
-            <span className="font-bold">User {message.memberId}: </span>
-            {message.body}
-            <div>{message.attachments?.map((media)=><Image src={media} width={100} height={100} alt="test"/>)}</div>
-            {message.isPending && (
-              <span className="text-xs text-gray-500 ml-2">(Sending...)</span>
-            )}
-          </div>
-        ))}
-      </div>
+      <MessageList
+        channelName={channel.name}
+        channelCreationTime={channel.createdAt}
+        data={messages}
+        loadMore={() => {}}
+        isLoadingMore={false}
+        canLoadMore={false}
+      />
+
       <ChatInput
         editorKey={editorKey}
         placeholder={`Message # ${channel.name}`}

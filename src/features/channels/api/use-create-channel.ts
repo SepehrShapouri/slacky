@@ -28,6 +28,7 @@ export function useCreateChannel() {
           Date.now() +
           "-" +
           Math.random().toString(36).substr(2, 9),
+          createdAt:new Date()
       };
 
       queryClient.setQueryData<Channels[]>(

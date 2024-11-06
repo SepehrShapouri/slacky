@@ -14,7 +14,7 @@ export default function useMediaUpload() {
 
   const { startUpload, isUploading } = useUploadThing("attachment", {
     onBeforeUploadBegin(files) {
-      console.log(files, 'before upload');
+      
       setAttachments((prev) => [
         ...prev,
         ...files.map((file) => ({ file, isUploading: true })),
@@ -27,7 +27,7 @@ export default function useMediaUpload() {
         toast.error("No result returned from uploadthing");
         return;
       }
-      console.log(res, 'client upload complete');
+      
 
       setAttachments((prev) =>
         prev.map((attachment) => {

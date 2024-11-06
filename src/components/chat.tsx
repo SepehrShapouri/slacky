@@ -34,7 +34,7 @@ export default function ChatComponent() {
   });
   useEffect(() => {
     if (isMessagesLoading) return;
-    console.log(initialMessages);
+    
     if (!initialMessages) return;
     const formattedMessages: Message[] = initialMessages.map((item) => ({
       body: item.body,
@@ -44,7 +44,7 @@ export default function ChatComponent() {
       workspaceId: item.workspaceId,
     }));
     setMessages(formattedMessages);
-    console.log(formattedMessages);
+    
   }, [initialMessages, setMessages, isMessagesLoading]);
 
   useEffect(() => {

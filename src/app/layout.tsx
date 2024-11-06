@@ -9,6 +9,7 @@ import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { fileRouter } from "@/app/api/uploadthing/core";
 
+
 const inter = Inter({ subsets: ["cyrillic"] });
 
 export const metadata: Metadata = {

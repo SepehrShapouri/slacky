@@ -23,17 +23,18 @@ model User {
 }
 
 model Workspaces {
-  id        String     @id @default(cuid())
-  name      String
-  userId    Int
-  creator   User       @relation("WorkspaceCreator", fields: [creatorId], references: [id])
-  creatorId Int
-  joinCode  String
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  members   Member[]
-  Channels  Channels[]
-  Messages  Messages[]
+  id            String          @id @default(cuid())
+  name          String
+  userId        Int
+  creator       User            @relation("WorkspaceCreator", fields: [creatorId], references: [id])
+  creatorId     Int
+  joinCode      String
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+  members       Member[]
+  Channels      Channels[]
+  Messages      Messages[]
+  Conversations Conversations[]
 }
 
 model Session {
@@ -45,14 +46,17 @@ model Session {
 }
 
 model Member {
-  id          Int        @id @default(autoincrement())
-  role        Role
-  joinedAt    DateTime   @default(now())
-  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId      Int
-  workspace   Workspaces @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
-  workspaceId String
-  Messages    Messages[]
+  id                 Int             @id @default(autoincrement())
+  role               Role
+  joinedAt           DateTime        @default(now())
+  user               User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId             Int
+  workspace          Workspaces      @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  workspaceId        String
+  Messages           Messages[]
+  Reactions          Reactions[]
+  conversationsAsOne Conversations[] @relation("MemberOneConversations")
+  conversationsAsTwo Conversations[] @relation("MemberTwoConversations")
 
   @@unique([userId, workspaceId])
 }
@@ -68,31 +72,63 @@ model Channels {
   workspace   Workspaces @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
   workspaceId String
   Messages    Messages[]
+  createdAt   DateTime   @default(now())
 }
 
 model Messages {
-  id          String   @id @default(cuid())
-  body        String
-  attachments String[]
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  member   Member @relation(fields: [memberId], references: [id])
-  memberId Int
-
-  channel   Channels? @relation(fields: [channelId], references: [id])
-  channelId String?
-
-  parent   Messages? @relation("MessageReplies", fields: [parentId], references: [id])
-  parentId String?
-
-  replies Messages[] @relation("MessageReplies")
-
-  workspace   Workspaces @relation(fields: [workspaceId], references: [id])
-  workspaceId String
+  id             String         @id @default(cuid())
+  body           String
+  attachments    String[]
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  member         Member         @relation(fields: [memberId], references: [id])
+  memberId       Int
+  channel        Channels?      @relation(fields: [channelId], references: [id])
+  channelId      String?
+  conversation   Conversations? @relation(fields: [conversationId], references: [id])
+  conversationId String?
+  parent         Messages?      @relation("MessageReplies", fields: [parentId], references: [id])
+  parentId       String?
+  replies        Messages[]     @relation("MessageReplies")
+  workspace      Workspaces     @relation(fields: [workspaceId], references: [id])
+  workspaceId    String
+  reactions      Reactions[]
 
   @@index([channelId])
+  @@index([conversationId])
   @@index([memberId])
   @@index([parentId])
   @@index([workspaceId])
+}
+
+model Conversations {
+  id          String     @id @default(cuid())
+  memberOneId Int
+  memberTwoId Int
+  workspaceId String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  memberOne   Member     @relation("MemberOneConversations", fields: [memberOneId], references: [id])
+  memberTwo   Member     @relation("MemberTwoConversations", fields: [memberTwoId], references: [id])
+  workspace   Workspaces @relation(fields: [workspaceId], references: [id])
+  messages    Messages[]
+
+  @@unique([memberOneId, memberTwoId, workspaceId])
+  @@index([memberOneId])
+  @@index([memberTwoId])
+  @@index([workspaceId])
+}
+
+model Reactions {
+  id        Int      @id @default(autoincrement())
+  value     String
+  createdAt DateTime @default(now())
+  message   Messages @relation(fields: [messageId], references: [id], onDelete: Cascade)
+  messageId String
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  memberId  Int
+
+  @@unique([messageId, memberId, value])
+  @@index([messageId])
+  @@index([memberId])
 }
