@@ -29,7 +29,7 @@ function WorkspaceSection({
           className="p-0.5 text-sm text-[#f9edffcc] shrink-0 size-6"
         >
           <FaCaretDown
-            className={cn("size-4 transition-transform", on && "-rotate-90")}
+            className={cn("size-4 transition-transform",!on && "-rotate-90")}
           />
         </Button>
         <Button

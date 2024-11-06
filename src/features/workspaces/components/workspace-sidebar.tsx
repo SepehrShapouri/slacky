@@ -1,8 +1,7 @@
 "use client";
-import { db } from "@/db";
 import { useCurrentMember } from "@/features/members/api/use-current-member";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useGetWorkspace } from "../api/use-get-workspace";
 import WorkspaceHeader from "./workspace-header";
 import SidebarItem from "./sidebar-item";
@@ -10,7 +9,6 @@ import useGetChannels from "@/features/channels/api/use-get-channels";
 import WorkspaceSection from "./workspace-section";
 import useGetMembers from "@/features/members/api/use-get-members";
 import UserItem from "./user-item";
-
 import { useCreateChannelModalAtom } from "@/features/channels/store/use-create-channel-modal";
 import {
   AlertTriangle,
@@ -20,16 +18,58 @@ import {
   SendHorizonal,
 } from "lucide-react";
 import { useChannelId } from "@/hooks/use-channel-id";
+import { useSocket } from "@/hooks/use-socket";
+
+interface OnlineUser {
+  memberId: number;
+  userId: number;
+}
 
 function WorkspaceSidebar() {
-  const channelId = useChannelId()
+  const channelId = useChannelId();
   const workspaceId = useWorkspaceId();
   const { isLoading, workspace } = useGetWorkspace({ id: workspaceId });
   const { channels } = useGetChannels({ workspaceId });
   const { members } = useGetMembers({ workspaceId });
   const { isMemberLoading, member } = useCurrentMember({ workspaceId });
-
+  const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
   const [_open, setOpen] = useCreateChannelModalAtom();
+  const socket = useSocket("workspaces");
+  
+  useEffect(() => {
+    if (socket && workspaceId && member) {
+      const joinWorkspace = () => {
+        socket.emit("join-workspace", workspaceId, member.id, member.userId);
+      };
+
+      joinWorkspace();
+
+      socket.on("connect", joinWorkspace);
+
+      socket.on("users-online", (users: OnlineUser[]) => {
+        setOnlineUsers(users);
+      });
+
+      socket.on("error", (error: string) => {
+        console.error("Socket error:", error);
+        // You might want to show this error to the user
+      });
+
+      const handleBeforeUnload = () => {
+        socket.emit("leave-workspace", workspaceId, member.id, member.userId);
+      };
+
+      window.addEventListener("beforeunload", handleBeforeUnload);
+
+      return () => {
+        socket.emit("leave-workspace", workspaceId, member.id, member.userId);
+        socket.off("connect", joinWorkspace);
+        socket.off("users-online");
+        socket.off("error");
+        window.removeEventListener("beforeunload", handleBeforeUnload);
+      };
+    }
+  }, [socket, workspaceId, member]);
 
   if (isLoading || isMemberLoading) {
     return (
@@ -64,7 +104,7 @@ function WorkspaceSidebar() {
             icon={HashIcon}
             label={item.name}
             id={item.id}
-            variant={channelId === item.id ? "active" : 'default'}
+            variant={channelId === item.id ? "active" : "default"}
           />
         ))}
       </WorkspaceSection>
@@ -75,6 +115,7 @@ function WorkspaceSidebar() {
       >
         {members?.map((item) => (
           <UserItem
+            isOnline={onlineUsers.some(user => user.memberId === item.id)}
             key={item.id}
             id={item.id}
             label={item.user.fullname}

@@ -32,7 +32,7 @@ type EditorProps = {
   placeholder?: string;
   defaultValue?: Delta | Op[];
   disabled?: boolean;
-  innerRef: MutableRefObject<Quill | null>;
+  innerRef?: MutableRefObject<Quill | null>;
 };
 const Editor = ({
   variant = "create",

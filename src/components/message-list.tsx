@@ -1,7 +1,10 @@
+import ChannelHero from "@/features/channels/components/channel-hero";
+import { useCurrentMember } from "@/features/members/api/use-current-member";
 import Message from "@/features/messages/components/message";
 import { ModifiedMessage } from "@/features/messages/lib/types";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { differenceInMinutes, format, isToday, isYesterday } from "date-fns";
-import React from "react";
+import React, { useState } from "react";
 type MessageListProps = {
   memberName?: string;
   memberImage?: string;
@@ -12,6 +15,8 @@ type MessageListProps = {
   loadMore: () => void;
   canLoadMore: boolean;
   isLoadingMore: boolean;
+  onDelete: (messageId: string) => void;
+  onEdit:(messageId: string, newBody: string) => void
 };
 const TIME_THRESHOLD = 5;
 function MessageList({
@@ -24,7 +29,12 @@ function MessageList({
   memberImage,
   memberName,
   variant = "channel",
+  onDelete,
+  onEdit
 }: MessageListProps) {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const workspaceId = useWorkspaceId();
+  const { member } = useCurrentMember({ workspaceId });
   const groupMessages = data.reduce((groups, message) => {
     const dateKey = format(message.createdAt!, "yyyy-MM-dd");
     if (!groups[dateKey]) {
@@ -39,7 +49,7 @@ function MessageList({
     if (isYesterday(date)) return "yesterday";
     return format(date, "EEEE, MMMM d");
   }
-  console.log(data)
+  
   return (
     <div className="flex-1 flex flex-col-reverse pb-4 overflow-y-auto messages-scrollbar">
       {Object.entries(groupMessages || {}).map(([dateKey, messages]) => (
@@ -63,7 +73,7 @@ function MessageList({
             return (
               <Message
                 isPending={message.isPending}
-                isAuthor={false}
+                isAuthor={message.memberId == member?.id}
                 key={message.id}
                 id={message.id}
                 memberId={message.memberId}
@@ -73,19 +83,25 @@ function MessageList({
                 body={message.body}
                 attachments={message.attachments}
                 updatedAt={message.updatedAt}
+                onDelete={onDelete}
                 createdAt={message.createdAt!}
                 threadCount={0}
                 threadImage={"str"}
                 threadTimestamp={"10234353453"}
-                isEditing={false}
-                setEditingId={() => {}}
+                isEditing={editingId == message.id}
+                setEditingId={(id:string | null)=>setEditingId(id)}
+                editingId={editingId}
                 isCompact={isCompact}
-                hideThreadButton={false}
+                hideThreadButton={variant === "thread"}
+                onEdit={onEdit}
               />
             );
           })}
         </div>
       ))}
+      {variant === "channel" && channelName && channelCreationTime && (
+        <ChannelHero name={channelName} creationTime={channelCreationTime} />
+      )}
     </div>
   );
 }

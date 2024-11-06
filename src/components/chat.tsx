@@ -110,7 +110,7 @@ export default function ChatComponent() {
         />
         <UploadButton endpoint="attachment" onClientUploadComplete={(res)=>{
           setUploadedImageUrl(res[0].url)
-        }} onUploadError={(error:Error)=>console.log(error)}/>
+        }} onUploadError={(error:Error)=>console.error(error)}/>
         <Button type="submit">Send</Button>
       </form>
     </div>
