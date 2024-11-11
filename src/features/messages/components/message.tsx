@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useMemo } from "react";
 import dynamic from "next/dynamic";
 import { Reactions } from "@prisma/client";
 import { Delta, Op } from "quill/core";
@@ -10,7 +10,20 @@ import Thumbnail from "./thumbnail";
 import hljs from "highlight.js";
 import Toolbar from "./toolbar";
 import { cn } from "@/lib/utils";
-
+import EditorSkeletons from "@/components/editor-skeletons";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
+import useSession from "@/hooks/use-session";
+import { useCurrentMember } from "@/features/members/api/use-current-member";
+import Reaction from "./reaction";
+type ReactionType = Reactions & {
+  member: { user: { fullname: string; avatarUrl: string } };
+};
 const Renderer = dynamic(
   () => {
     hljs.configure({ languages: ["javascript", "html", "css"] });
@@ -29,7 +42,7 @@ const Editor = dynamic(
   },
   {
     ssr: false,
-    loading: () => <p>lodaing..</p>,
+    loading: () => <EditorSkeletons />,
   }
 );
 type MessageProps = {
@@ -38,7 +51,7 @@ type MessageProps = {
   memberId: number;
   authorImage: string | null | undefined;
   authorName?: string;
-  reactions: Reactions[];
+  reactions: ReactionType[];
   body: string;
   attachments: string[];
   updatedAt?: Date;
@@ -54,6 +67,7 @@ type MessageProps = {
   onDelete: (messageId: string) => void;
   editingId: string | null;
   onEdit: (messageId: string, newBody: string) => void;
+  onReact: (reaction: string, messageId: string) => void;
 };
 
 function Message({
@@ -78,7 +92,12 @@ function Message({
   onDelete,
   onEdit,
   editingId,
+  onReact,
 }: MessageProps) {
+  function countEmoji(reactions: ReactionType[], emoji: string): number {
+    return reactions.filter((reaction) => reaction.value === emoji).length;
+  }
+  const { user } = useSession();
   function isEqualDate(date1: Date, date2?: Date) {
     if (!date2 || !date1) return false;
     if (typeof date1 == "string" && typeof date2 == "string") {
@@ -103,10 +122,29 @@ function Message({
     onEdit(id, body);
     setEditingId("not-editing");
   }
-  
+  const uniqueReactions = useMemo(() => {
+    if (!reactions) return [];
+    const uniqueEmojis = new Set(reactions.map((r) => r.value));
+    return Array.from(uniqueEmojis).map((emoji) => ({
+      value: emoji,
+      count: countEmoji(reactions, emoji),
+      users: reactions
+        .filter((r) => r.value === emoji)
+        .map((r) => r.member.user.fullname),
+      members: reactions
+        .filter((r) => r.value === emoji)
+        .map((r) => r.memberId),
+    }));
+  }, [reactions]);
+
   if (isCompact)
     return (
-      <div className="flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative">
+      <div
+        className={cn(
+          "flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative",
+          isEditing && "bg-[#f2c74433] hover:bg-[#f2c74433]"
+        )}
+      >
         <div className="flex items-start gap-2">
           <Hint label={formatFullTime(createdAt)}>
             <button className="text-xs text-muted-foreground opacity-0 group-hover:opacity-100 w-[40px] leading-[22px] text-center hover:underline">
@@ -136,6 +174,14 @@ function Message({
               {updatedAt && isEdited ? (
                 <span className="!text-xs text-muted-foreground">(edited)</span>
               ) : null}
+
+              {!!uniqueReactions.length && (
+                <div className="flex items-center flex-wrap gap-2 mt-1.5">
+                  {uniqueReactions.map((reaction) => (
+                    <Reaction reaction={reaction}  onReact={onReact} messageId={id}/>
+                  ))}
+                </div>
+              )}
             </div>
           )}
           {isPending && (
@@ -150,7 +196,7 @@ function Message({
             handleThread={() => {}}
             handleDelete={() => onDelete(id)}
             hideThreadButton={hideThreadButton}
-            handleReaction={(value: string) => {}}
+            handleReaction={(value: string) => onReact(value, id)}
           />
         )}
       </div>
@@ -164,7 +210,7 @@ function Message({
       )}
     >
       <div className="flex items-start gap-2">
-        <button>
+        <button className="mt-[2.43px]">
           <Avatar className="size-9 rounded-lg ">
             <AvatarImage
               className="rounded-lg"
@@ -186,7 +232,7 @@ function Message({
             />
           </div>
         ) : (
-          <div className="flex flex-col w-full overflow-hidden">
+          <div className="flex flex-col w-full overflow-hidden ">
             <div className="text-sm">
               <button
                 className="font-bold text-primary hover:underline"
@@ -202,7 +248,7 @@ function Message({
               </Hint>
             </div>
             <Renderer value={body} />
-            {attachments ? (
+            {attachments.length ? (
               <div className="flex flex-wrap gap-2">
                 {attachments.map((image) => (
                   <Thumbnail image={image} />
@@ -212,6 +258,13 @@ function Message({
             {updatedAt && isEdited ? (
               <span className="!text-xs text-muted-foreground">(edited)</span>
             ) : null}
+            {!!uniqueReactions.length && (
+              <div className="flex items-center flex-wrap gap-2 mt-1.5">
+                {uniqueReactions.map((reaction) => (
+                  <Reaction reaction={reaction}  messageId={id} onReact={onReact} />
+                ))}
+              </div>
+            )}
           </div>
         )}
         {isPending && (
@@ -226,7 +279,7 @@ function Message({
           handleThread={() => {}}
           handleDelete={() => onDelete(id)}
           hideThreadButton={hideThreadButton}
-          handleReaction={(value: string) => {}}
+          handleReaction={(value: string) => onReact(value, id)}
         />
       )}
     </div>

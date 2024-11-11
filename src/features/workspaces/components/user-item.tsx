@@ -37,7 +37,7 @@ export default function UserItem({
   const workspaceId = useWorkspaceId();
   const { member } = useCurrentMember({ workspaceId });
   const avatarFallback = label.charAt(0).toUpperCase();
-  console.log(isOnline);
+
   return (
     <Button
       variant="transparent"

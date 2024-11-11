@@ -17,6 +17,7 @@ type MessageListProps = {
   isLoadingMore: boolean;
   onDelete: (messageId: string) => void;
   onEdit:(messageId: string, newBody: string) => void
+  onReact:(reaction:string,messageId:string)=>void
 };
 const TIME_THRESHOLD = 5;
 function MessageList({
@@ -30,7 +31,8 @@ function MessageList({
   memberName,
   variant = "channel",
   onDelete,
-  onEdit
+  onEdit,
+  onReact
 }: MessageListProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const workspaceId = useWorkspaceId();
@@ -94,6 +96,7 @@ function MessageList({
                 isCompact={isCompact}
                 hideThreadButton={variant === "thread"}
                 onEdit={onEdit}
+                onReact={onReact}
               />
             );
           })}

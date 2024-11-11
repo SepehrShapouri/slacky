@@ -1,4 +1,4 @@
-import { $Enums, Member } from "@prisma/client";
+import { $Enums, Member, Reactions } from "@prisma/client";
 
 export type ModifiedMessage = {
   workspaceId: string;
@@ -26,7 +26,10 @@ export type ModifiedMessage = {
     };
   };
   userId?: number;
-  reactions?: any;
+  reactions: ReactionType[] | []
+};
+export type ReactionType = Reactions & {
+  member: { user: { fullname: string; avatarUrl: string } };
 };
 
 // attachments

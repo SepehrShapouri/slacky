@@ -51,12 +51,26 @@ export async function GET(
             },
           },
         },
+        reactions: {
+          include: {
+            member: {
+              include: {
+                user: {
+                  select: {
+                    fullname: true,
+                    avatarUrl: true,
+                  },
+                },
+              },
+            },
+          },
+        },
       },
-      orderBy:{
-        createdAt:'desc'
-      }
+      orderBy: {
+        createdAt: "desc",
+      },
     });
-    
+
     return NextResponse.json(messages, { status: 200 });
   } catch (error) {
     return NextResponse.json(

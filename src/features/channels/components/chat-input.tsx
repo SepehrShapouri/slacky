@@ -1,3 +1,4 @@
+import EditorSkeletons from "@/components/editor-skeletons";
 import hljs from "highlight.js";
 import dynamic from "next/dynamic";
 import Quill from "quill";
@@ -10,7 +11,9 @@ const Editor = dynamic(
   },
   {
     ssr: false,
-    loading: () => <p>lodaing..</p>,
+    loading: () =><div className="mb-[31px]">
+      <EditorSkeletons/>
+    </div>,
   }
 );
 type EditorValue = {
