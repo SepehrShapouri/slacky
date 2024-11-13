@@ -9,6 +9,7 @@ import { NextSSRPlugin } from "@uploadthing/react/next-ssr-plugin";
 import { extractRouterConfig } from "uploadthing/server";
 import { fileRouter } from "@/app/api/uploadthing/core";
 
+import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 const inter = Inter({ subsets: ["cyrillic"] });
 
@@ -28,7 +29,7 @@ export default function RootLayout({
         <Providers>
           <Modals />
           <NextSSRPlugin routerConfig={extractRouterConfig(fileRouter)} />
-          {children}
+          <NuqsAdapter>{children}</NuqsAdapter>
           <Toaster />
         </Providers>
       </body>

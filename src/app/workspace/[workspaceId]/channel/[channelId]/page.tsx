@@ -6,6 +6,7 @@ import ChatInput from "@/features/channels/components/chat-input";
 import Header from "@/features/channels/components/header";
 import { useCurrentMember } from "@/features/members/api/use-current-member";
 import { ModifiedMessage, ReactionType } from "@/features/messages/lib/types";
+import ThreadsPanel from "@/features/threads/components/threads-panel";
 import { generateJoinCode } from "@/features/workspaces/lib/utils";
 import { useChannelId } from "@/hooks/use-channel-id";
 import useSession from "@/hooks/use-session";
@@ -74,7 +75,6 @@ function Page() {
             (m) => m.key === message.key
           );
           if (existingMessageIndex !== -1) {
-            // Replace the pending message with the confirmed one
             const updatedMessages = [...prevMessages];
             updatedMessages[existingMessageIndex] = {
               ...message,
@@ -82,7 +82,6 @@ function Page() {
             };
             return updatedMessages;
           } else {
-            // Add the new message if it doesn't exist
             return [message, ...prevMessages];
           }
         });
@@ -106,6 +105,7 @@ function Page() {
         }
       );
       socket.on("reaction-added", (updatedMessage: ModifiedMessage) => {
+        console.log(updatedMessage)
         setMessages((prevMessages) =>
           prevMessages.map((msg) =>
             msg.id == updatedMessage.id ? updatedMessage : msg
@@ -205,26 +205,26 @@ function Page() {
   const reactToMessage = useCallback(
     (reaction: string, messageId: string) => {
       if (!member || !user) return;
-  
+
       setMessages((prevMessages) => {
         return prevMessages.map((msg) => {
           if (msg.id !== messageId) return msg;
-  
+
           const existingReactionIndex = msg.reactions.findIndex(
             (r) => r.memberId === member.id && r.value === reaction
           );
-  
+
           if (existingReactionIndex !== -1) {
-            // Existing reaction found, remove it
-            const updatedReactions = msg.reactions.filter((_, index) => index !== existingReactionIndex);
+            const updatedReactions = msg.reactions.filter(
+              (_, index) => index !== existingReactionIndex
+            );
             return { ...msg, reactions: updatedReactions };
           }
-  
-          // No existing reaction, add a new one
+
           const newReaction: ReactionType & {
-            member: { user: { fullname: string; avatarUrl: string } }
+            member: { user: { fullname: string; avatarUrl: string } };
           } = {
-            id: Date.now(), // Use a temporary ID
+            id: Date.now(),
             createdAt: new Date(),
             member: {
               user: {
@@ -239,9 +239,8 @@ function Page() {
           return { ...msg, reactions: [...msg.reactions, newReaction] };
         });
       });
-  
-      // Emit socket event for both adding and removing reactions
-      socket?.emit('reaction', {
+
+      socket?.emit("reaction", {
         reaction,
         messageId,
         memberId: member.id,
@@ -250,7 +249,6 @@ function Page() {
     },
     [member, user, channelId, socket]
   );
-
 
   if (isChannelLoading)
     return (
@@ -270,6 +268,7 @@ function Page() {
     );
 
   return (
+    <>
     <div className="flex flex-col h-full">
       <Header title={channel.name} />
       <MessageList
@@ -290,6 +289,8 @@ function Page() {
         onSubmit={onSubmit}
       />
     </div>
+    <ThreadsPanel/>
+    </>
   );
 }
 

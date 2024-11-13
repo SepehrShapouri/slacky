@@ -44,6 +44,7 @@
     "lucide-react": "^0.453.0",
     "next": "14.2.15",
     "next-themes": "^0.3.0",
+    "nuqs": "^2.1.2",
     "prisma": "^5.21.1",
     "quill": "^2.0.2",
     "react": "^18",

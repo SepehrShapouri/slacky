@@ -1,26 +1,18 @@
-import React, { useMemo } from "react";
-import dynamic from "next/dynamic";
-import { Reactions } from "@prisma/client";
-import { Delta, Op } from "quill/core";
-import { format, isToday, isYesterday } from "date-fns";
+import EditorSkeletons from "@/components/editor-skeletons";
 import Hint from "@/components/hint";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Loader2 } from "lucide-react";
-import Thumbnail from "./thumbnail";
-import hljs from "highlight.js";
-import Toolbar from "./toolbar";
-import { cn } from "@/lib/utils";
-import EditorSkeletons from "@/components/editor-skeletons";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { Button } from "@/components/ui/button";
+import { usePanel } from "@/hooks/use-panel";
 import useSession from "@/hooks/use-session";
-import { useCurrentMember } from "@/features/members/api/use-current-member";
+import { cn } from "@/lib/utils";
+import { Reactions } from "@prisma/client";
+import { format, isToday, isYesterday } from "date-fns";
+import hljs from "highlight.js";
+import { Loader2 } from "lucide-react";
+import dynamic from "next/dynamic";
+import { useMemo } from "react";
 import Reaction from "./reaction";
+import Thumbnail from "./thumbnail";
+import Toolbar from "./toolbar";
 type ReactionType = Reactions & {
   member: { user: { fullname: string; avatarUrl: string } };
 };
@@ -97,6 +89,7 @@ function Message({
   function countEmoji(reactions: ReactionType[], emoji: string): number {
     return reactions.filter((reaction) => reaction.value === emoji).length;
   }
+  const { onOpenMessage, onClose, parentMessageId } = usePanel();
   const { user } = useSession();
   function isEqualDate(date1: Date, date2?: Date) {
     if (!date2 || !date1) return false;
@@ -178,7 +171,11 @@ function Message({
               {!!uniqueReactions.length && (
                 <div className="flex items-center flex-wrap gap-2 mt-1.5">
                   {uniqueReactions.map((reaction) => (
-                    <Reaction reaction={reaction}  onReact={onReact} messageId={id}/>
+                    <Reaction
+                      reaction={reaction}
+                      onReact={onReact}
+                      messageId={id}
+                    />
                   ))}
                 </div>
               )}
@@ -193,7 +190,7 @@ function Message({
             isAuthor={isAuthor}
             isPending={false}
             handleEdit={() => setEditingId(id)}
-            handleThread={() => {}}
+            handleThread={() => onOpenMessage(id)}
             handleDelete={() => onDelete(id)}
             hideThreadButton={hideThreadButton}
             handleReaction={(value: string) => onReact(value, id)}
@@ -261,7 +258,11 @@ function Message({
             {!!uniqueReactions.length && (
               <div className="flex items-center flex-wrap gap-2 mt-1.5">
                 {uniqueReactions.map((reaction) => (
-                  <Reaction reaction={reaction}  messageId={id} onReact={onReact} />
+                  <Reaction
+                    reaction={reaction}
+                    messageId={id}
+                    onReact={onReact}
+                  />
                 ))}
               </div>
             )}
@@ -276,8 +277,13 @@ function Message({
           isAuthor={isAuthor}
           isPending={false}
           handleEdit={() => setEditingId(id)}
-          handleThread={() => {}}
-          handleDelete={() => onDelete(id)}
+          handleThread={() => onOpenMessage(id)}
+          handleDelete={() => {
+            onDelete(id);
+            if (parentMessageId === id) {
+              onClose();
+            }
+          }}
           hideThreadButton={hideThreadButton}
           handleReaction={(value: string) => onReact(value, id)}
         />

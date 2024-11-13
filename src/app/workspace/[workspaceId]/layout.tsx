@@ -1,12 +1,13 @@
-import React from "react";
-import Toolbar from "../../../features/workspaces/components/toolbar";
-import Sidebar from "../../../features/workspaces/components/sidebar";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import WorkspaceSidebar from "@/features/workspaces/components/workspace-sidebar";
+import React from "react";
+import Sidebar from "../../../features/workspaces/components/sidebar";
+import Toolbar from "../../../features/workspaces/components/toolbar";
+import ThreadsPanel from "@/features/threads/components/threads-panel";
 function WorkspaceLayout({ children }: React.PropsWithChildren) {
   return (
     <div className="h-full ">
@@ -26,6 +27,8 @@ function WorkspaceLayout({ children }: React.PropsWithChildren) {
           </ResizablePanel>
           <ResizableHandle withHandle />
           <ResizablePanel minSize={20}>{children}</ResizablePanel>
+          
+
         </ResizablePanelGroup>
       </div>
     </div>

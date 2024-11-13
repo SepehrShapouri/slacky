@@ -3,11 +3,14 @@ import React, { ReactNode } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { JotaiProvider } from "./jotai-provider";
 
+
 function Providers({ children }: React.PropsWithChildren) {
   const client = new QueryClient();
   return (
     <QueryClientProvider client={client}>
-      <JotaiProvider>{children}</JotaiProvider>
+      <JotaiProvider>
+       {children}
+      </JotaiProvider>
     </QueryClientProvider>
   );
 }
