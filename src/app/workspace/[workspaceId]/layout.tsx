@@ -27,8 +27,7 @@ function WorkspaceLayout({ children }: React.PropsWithChildren) {
           </ResizablePanel>
           <ResizableHandle withHandle />
           <ResizablePanel minSize={20}>{children}</ResizablePanel>
-          
-
+          <ThreadsPanel/>
         </ResizablePanelGroup>
       </div>
     </div>

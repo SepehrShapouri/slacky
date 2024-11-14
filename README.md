@@ -1,36 +1,51 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+content that needs to be modified in threads
+we have the main parent message.
+it can be deleted from the panel,
+it can be edited from the panel,
+it can be reacted to from the panel,
 
-## Getting Started
+```required features for the parent message in threads panel
 
-First, run the development server:
-
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+[x] - delete parent message from threads panel
+[x] - edit parent message from threads panel
+[x] - react to parent message from the threads panel
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+all three actions are actions that not only should be effective on the threads panel instance of the message,
+but also they should update the message in the main message list.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```
+when deleting the parent message through the threads panel, the message should be deleted from the main message list
+when editing the parent message through the threads panel, the messags should be edited in the message list aswell
+when reacting to the parent message through the threads panel, the message should be reacted to in the message list aswell
+```
 
-## Learn More
+[x] - delete parent message from the message list upon deletion in threads panel
+[x] - edit parent message in the message list upon editing in the threads panel
+[x] - add reactions to the parent message in the message list upon message bein reacted to in the threads panel
 
-To learn more about Next.js, take a look at the following resources:
+‍
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```
+when the parent message has been deleted, it should be in realtime,
+meaning that the parent message should be deleted for all clients in the socket room.
+meaning we need to omit the changes to the room so all clients recieve it,
+therefore the parent message that was deleted,
+will be deleted for everyone in realtime in both the threads panel and the message list.
+----------
+when the parent message has been edited, it should be edited in realtime for all the users in the socket room,
+meaning all clients connected to the socket room should receive the updated message,
+ in both their treads panel and in the message list,
+"in realtime".
+meaning we have to omit the new updated message to the socket,
+ and listen for it, we are listening for it in realtime as of now.
+-----------
+when the parent message has been reacted to through the threads panel,
+ it should be updated in realtime in both the threads panel and the messages list for every client connected to the room.
+meaning we have to omit the reaction to the socket, and listen for it in both the panel and the message list.
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+[x] - realtime updates for parent message deletion
+[x] - realtime updates for parent message editing
+[x] - realtime updates for parent message reactions

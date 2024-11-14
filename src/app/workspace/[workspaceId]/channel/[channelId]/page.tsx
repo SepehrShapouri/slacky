@@ -6,6 +6,7 @@ import ChatInput from "@/features/channels/components/chat-input";
 import Header from "@/features/channels/components/header";
 import { useCurrentMember } from "@/features/members/api/use-current-member";
 import { ModifiedMessage, ReactionType } from "@/features/messages/lib/types";
+import { useCreateMessagesAtom } from "@/features/messages/store/use-create-messages-atom";
 import ThreadsPanel from "@/features/threads/components/threads-panel";
 import { generateJoinCode } from "@/features/workspaces/lib/utils";
 import { useChannelId } from "@/hooks/use-channel-id";
@@ -23,7 +24,9 @@ type EditorValue = {
 
 function Page() {
   const [editorKey, setEditorkey] = useState<number>(0);
-  const [messages, setMessages] = useState<ModifiedMessage[]>([]);
+  // const [messages, setMessages] = useState<ModifiedMessage[]>([]);
+  const [messages,setMessages] = useCreateMessagesAtom()
+  
   const workspaceId = useWorkspaceId();
   const channelId = useChannelId();
   const { member } = useCurrentMember({ workspaceId });
@@ -70,6 +73,7 @@ function Page() {
         console.log("user is online", memberId);
       });
       socket.on("new-message", (message: ModifiedMessage) => {
+        
         setMessages((prevMessages) => {
           const existingMessageIndex = prevMessages.findIndex(
             (m) => m.key === message.key
