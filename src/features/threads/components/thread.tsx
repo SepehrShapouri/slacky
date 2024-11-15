@@ -63,7 +63,6 @@ function Thread({ messageId, onClose }: ThreadProps) {
   const threadId = `${messageId}_${channelId}`;
 
   const [editingId, setEditingId] = useState<string | null>(null);
-  
 
   const { message, isMessageLoading } = useGetMessage({
     workspaceId,
@@ -149,7 +148,11 @@ function Thread({ messageId, onClose }: ThreadProps) {
             return [newReply, ...prevMessages];
           }
         });
+        if (socket) {
+          socket.emit("send-reply", newReply, channelId);
+        }
       });
+
       threadSocket.on("message-updated", (updatedReply: ModifiedMessage) => {
         setParentReplies((prevReplies) =>
           prevReplies.map((msg) =>
@@ -170,7 +173,6 @@ function Thread({ messageId, onClose }: ThreadProps) {
         }
       );
       threadSocket.on("reaction-added", (updatedMessage: ModifiedMessage) => {
-        
         setParentReplies((prevReplies) =>
           prevReplies.map((msg) =>
             msg.id == updatedMessage.id ? updatedMessage : msg
@@ -182,7 +184,9 @@ function Thread({ messageId, onClose }: ThreadProps) {
         console.error("threadSocket error:", error);
         toast.error("Something went wrong");
 
-        setParentReplies((prevReplies) => prevReplies.filter((m) => !m.isPending));
+        setParentReplies((prevReplies) =>
+          prevReplies.filter((m) => !m.isPending)
+        );
       });
     }
 
@@ -233,7 +237,6 @@ function Thread({ messageId, onClose }: ThreadProps) {
 
           reactions: [],
         };
-
         // setThreadMessages((prevThreads) => [newMessage, ...prevThreads]);
         setParentReplies((prevReplies) => [newMessage, ...prevReplies]);
 
@@ -242,11 +245,10 @@ function Thread({ messageId, onClose }: ThreadProps) {
           parentMessageId: messageId,
           threadId,
         });
-
         setEditorkey((prev) => prev + 1);
       }
     },
-    [threadSocket, member, workspaceId, channelId]
+    [threadSocket, member, workspaceId, channelId, messageId]
   );
 
   const deleteParentMessage = useCallback(
@@ -258,7 +260,7 @@ function Thread({ messageId, onClose }: ThreadProps) {
         socket.emit("delete-message", messageId, channelId);
       }
     },
-    [socket, channelId]
+    [socket, channelId, messageId]
   );
 
   const editParentMessage = useCallback(
@@ -285,7 +287,7 @@ function Thread({ messageId, onClose }: ThreadProps) {
         socket.emit("edit-message", editedMessage);
       }
     },
-    [socket, member, workspaceId, channelId]
+    [socket, member, workspaceId, channelId, messageId]
   );
 
   const reactToParentMessage = useCallback(
@@ -365,7 +367,7 @@ function Thread({ messageId, onClose }: ThreadProps) {
         channelId,
       });
     },
-    [member, user, channelId, socket]
+    [member, user, channelId, socket, messageId]
   );
 
   const deleteReply = useCallback(
@@ -402,7 +404,7 @@ function Thread({ messageId, onClose }: ThreadProps) {
             reply.id === replyId ? { ...reply, body: newBody } : reply
           )
         );
-        threadSocket.emit("edit-message", editedReply,threadId);
+        threadSocket.emit("edit-message", editedReply, threadId);
       }
     },
     [threadSocket, member, workspaceId, channelId]
@@ -440,7 +442,7 @@ function Thread({ messageId, onClose }: ThreadProps) {
             },
             value: reaction,
             memberId: member.id,
-            messageId:replyId,
+            messageId: replyId,
           };
           return { ...msg, reactions: [...msg.reactions, newReaction] };
         });
@@ -450,7 +452,7 @@ function Thread({ messageId, onClose }: ThreadProps) {
         reaction,
         threadId,
         memberId: member.id,
-        messageId:replyId,
+        messageId: replyId,
       });
     },
     [member, user, threadId, threadSocket]
@@ -497,6 +499,7 @@ function Thread({ messageId, onClose }: ThreadProps) {
       </div>
       <div>
         <ParentMessage
+          variant="thread"
           hideThreadButton
           memberId={parentMessage.memberId}
           authorImage={parentMessage.member?.user.avatarUrl}

@@ -60,6 +60,7 @@ function Page() {
         member: {
           ...item.member!,
         },
+        replies: [...(item.replies || [])],
         reactions: item.reactions,
       })
     );
@@ -73,6 +74,7 @@ function Page() {
         console.log("user is online", memberId);
       });
       socket.on("new-message", (message: ModifiedMessage) => {
+        console.log("new message", message);
         setMessages((prevMessages) => {
           const existingMessageIndex = prevMessages.findIndex(
             (m) => m.key === message.key
@@ -108,11 +110,22 @@ function Page() {
         }
       );
       socket.on("reaction-added", (updatedMessage: ModifiedMessage) => {
-        
         setMessages((prevMessages) =>
           prevMessages.map((msg) =>
             msg.id == updatedMessage.id ? updatedMessage : msg
           )
+        );
+      });
+      socket.on("new-reply", (newReply: ModifiedMessage) => {
+        console.log('new reply')
+        setMessages((prevMessages) =>
+          prevMessages.map((msg) => {
+            const existingReply = msg.replies?.find((r) => r.id == newReply.id);
+            if (existingReply) return msg;
+            return msg.id == newReply.parentId
+              ? { ...msg, replies: [newReply, ...(msg.replies || [])] }
+              : msg;
+          })
         );
       });
       socket.on("error", (error: string) => {
@@ -126,6 +139,7 @@ function Page() {
     return () => {
       if (socket) {
         socket.off("reaction-added");
+        socket.off("new-reply");
         socket.off("new-message");
         socket.off("error");
         socket.off("message-updated");

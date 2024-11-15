@@ -77,6 +77,7 @@ function MessageList({
 
             return (
               <Message
+                variant={variant}
                 isPending={message.isPending}
                 isAuthor={message.memberId == member?.id}
                 key={message.id}
@@ -89,10 +90,21 @@ function MessageList({
                 attachments={message.attachments}
                 updatedAt={message.updatedAt}
                 onDelete={onDelete}
+                threadImageFallback={
+                  message.replies?.length
+                    ? message.replies[0].member?.user.fullname[0].toUpperCase() || undefined
+                    : undefined
+                }
                 createdAt={message.createdAt!}
-                threadCount={0}
-                threadImage={"str"}
-                threadTimestamp={"10234353453"}
+                threadCount={message.replies?.length || 0}
+                threadImage={
+                  message.replies?.length
+                    ? message.replies[0].member?.user.avatarUrl
+                    : undefined
+                }
+                threadTimestamp={
+                  message.replies?.length &&message.replies[0] ? message.replies[0].createdAt : undefined
+                }
                 isEditing={editingId == message.id}
                 setEditingId={(id: string | null) => setEditingId(id)}
                 editingId={editingId}

@@ -67,6 +67,37 @@ export async function GET(
             },
           },
         },
+        replies: {
+          include:{
+            member: {
+              include: {
+                user: {
+                  select: {
+                    avatarUrl: true,
+                    fullname: true,
+                    email: true,
+                  },
+                },
+              },
+            },
+            reactions: {
+              include: {
+                member: {
+                  include: {
+                    user: {
+                      select: {
+                        fullname: true,
+                        avatarUrl: true,
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },orderBy:{
+            createdAt:'desc'
+          }
+        },
       },
       orderBy: {
         createdAt: "desc",

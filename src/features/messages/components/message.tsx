@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 import { Reactions } from "@prisma/client";
 import { format, isToday, isYesterday } from "date-fns";
 import hljs from "highlight.js";
-import { Loader2 } from "lucide-react";
+import { Loader2, User } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useMemo } from "react";
 import Reaction from "./reaction";
@@ -50,7 +50,8 @@ type MessageProps = {
   createdAt: Date;
   threadCount?: number;
   threadImage?: string;
-  threadTimestamp?: string;
+  threadTimestamp?: Date;
+  threadImageFallback?:string
   isEditing: boolean;
   setEditingId: (id: string) => void;
   isCompact?: boolean;
@@ -60,6 +61,7 @@ type MessageProps = {
   editingId: string | null;
   onEdit: (messageId: string, newBody: string) => void;
   onReact: (reaction: string, messageId: string) => void;
+  variant: "thread" | "channel" | "conversation";
 };
 
 function Message({
@@ -82,15 +84,17 @@ function Message({
   updatedAt,
   isPending,
   onDelete,
+  threadImageFallback,
   onEdit,
   editingId,
   onReact,
+  variant = "channel",
 }: MessageProps) {
   function countEmoji(reactions: ReactionType[], emoji: string): number {
     return reactions.filter((reaction) => reaction.value === emoji).length;
   }
   const { onOpenMessage, onClose, parentMessageId } = usePanel();
-  const { user } = useSession();
+  
   function isEqualDate(date1: Date, date2?: Date) {
     if (!date2 || !date1) return false;
     if (typeof date1 == "string" && typeof date2 == "string") {
@@ -158,12 +162,12 @@ function Message({
             <div className="flex flex-col w-full">
               <Renderer value={body} />
               {attachments.length ? (
-              <div className="flex flex-wrap gap-2">
-                {attachments.map((image) => (
-                  <Thumbnail image={image} />
-                ))}
-              </div>
-            ) : null}
+                <div className="flex flex-wrap gap-2">
+                  {attachments.map((image) => (
+                    <Thumbnail image={image} />
+                  ))}
+                </div>
+              ) : null}
               {updatedAt && isEdited ? (
                 <span className="!text-xs text-muted-foreground">(edited)</span>
               ) : null}
@@ -179,6 +183,25 @@ function Message({
                   ))}
                 </div>
               )}
+            {variant !== "thread" && !!threadCount && threadCount > 0 && (
+              <div onClick={()=>onOpenMessage(id)} className="cursor-pointer flex items-center gap-1.5 p-1 group/reply hover:bg-white hover:border-zinc-200 border border-transparent   rounded-md mt-1 transition">
+                <Avatar className="size-6 rounded-md ">
+                  <AvatarImage className="rounded-lg" src={threadImage} />
+                  <AvatarFallback className="bg-sky-500 font-semibold text-white rounded-lg">
+                    {threadImageFallback}
+                  </AvatarFallback>
+                </Avatar>
+                <p className="text-sm text-sky-800 font-semibold">
+                  {threadCount} {threadCount > 1 ? "replies" : "reply"}
+                </p>
+                <p className="text-xs text-muted-foreground group-hover/reply:hidden">
+                  Last reply {threadTimestamp ? formatFullTime(threadTimestamp) : 'NA'}
+                </p>
+                <p className="text-xs text-muted-foreground group-hover/reply:inline hidden">
+                  View thread
+                </p>
+              </div>
+            )}
             </div>
           )}
           {isPending && (
@@ -264,6 +287,25 @@ function Message({
                     onReact={onReact}
                   />
                 ))}
+              </div>
+            )}
+            {variant !== "thread" && !!threadCount && threadCount > 0 && (
+              <div onClick={()=>onOpenMessage(id)} className="cursor-pointer flex items-center gap-1.5 p-1 group/reply hover:bg-white hover:border-zinc-200 border border-transparent   rounded-md mt-1 transition">
+                <Avatar className="size-6 rounded-md ">
+                  <AvatarImage className="rounded-lg" src={threadImage} />
+                  <AvatarFallback className="bg-sky-500 font-semibold text-white rounded-lg">
+                    {threadImageFallback}
+                  </AvatarFallback>
+                </Avatar>
+                <p className="text-sm text-sky-800 font-semibold">
+                  {threadCount} {threadCount > 1 ? "replies" : "reply"}
+                </p>
+                <p className="text-xs text-muted-foreground group-hover/reply:hidden">
+                Last reply {threadTimestamp ? formatFullTime(threadTimestamp) : 'NA'}
+                </p>
+                <p className="text-xs text-muted-foreground group-hover/reply:inline hidden">
+                  View thread
+                </p>
               </div>
             )}
           </div>
