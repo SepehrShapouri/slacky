@@ -38,7 +38,9 @@ export async function GET(
       where: {
         channelId,
         workspaceId,
+        parentId: null,
       },
+
       include: {
         member: {
           include: {

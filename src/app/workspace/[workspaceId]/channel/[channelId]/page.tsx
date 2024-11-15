@@ -25,8 +25,8 @@ type EditorValue = {
 function Page() {
   const [editorKey, setEditorkey] = useState<number>(0);
   // const [messages, setMessages] = useState<ModifiedMessage[]>([]);
-  const [messages,setMessages] = useCreateMessagesAtom()
-  
+  const [messages, setMessages] = useCreateMessagesAtom();
+
   const workspaceId = useWorkspaceId();
   const channelId = useChannelId();
   const { member } = useCurrentMember({ workspaceId });
@@ -73,7 +73,6 @@ function Page() {
         console.log("user is online", memberId);
       });
       socket.on("new-message", (message: ModifiedMessage) => {
-        
         setMessages((prevMessages) => {
           const existingMessageIndex = prevMessages.findIndex(
             (m) => m.key === message.key
@@ -109,7 +108,7 @@ function Page() {
         }
       );
       socket.on("reaction-added", (updatedMessage: ModifiedMessage) => {
-        console.log(updatedMessage)
+        
         setMessages((prevMessages) =>
           prevMessages.map((msg) =>
             msg.id == updatedMessage.id ? updatedMessage : msg
@@ -273,27 +272,23 @@ function Page() {
 
   return (
     <>
-    <div className="flex flex-col h-full">
-      <Header title={channel.name} />
-      <MessageList
-        channelName={channel.name}
-        channelCreationTime={channel.createdAt}
-        data={messages}
-        onDelete={deleteMessage}
-        onEdit={editMessage}
-        onReact={reactToMessage}
-        loadMore={() => {}}
-        isLoadingMore={false}
-        canLoadMore={false}
-      />
+      <div className="flex flex-col h-full">
+        <Header title={channel.name} />
+        <MessageList
+          channelName={channel.name}
+          channelCreationTime={channel.createdAt}
+          data={messages}
+          onDelete={deleteMessage}
+          onEdit={editMessage}
+          onReact={reactToMessage}
+        />
 
-      <ChatInput
-        editorKey={editorKey}
-        placeholder={`Message # ${channel.name}`}
-        onSubmit={onSubmit}
-      />
-    </div>
-    <ThreadsPanel/>
+        <ChatInput
+          editorKey={editorKey}
+          placeholder={`Message # ${channel.name}`}
+          onSubmit={onSubmit}
+        />
+      </div>
     </>
   );
 }

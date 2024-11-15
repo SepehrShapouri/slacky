@@ -157,13 +157,13 @@ function Message({
           ) : (
             <div className="flex flex-col w-full">
               <Renderer value={body} />
-              {attachments ? (
-                <div className="flex flex-wrap gap-2">
-                  {attachments.map((image) => (
-                    <Thumbnail image={image} />
-                  ))}
-                </div>
-              ) : null}
+              {attachments.length ? (
+              <div className="flex flex-wrap gap-2">
+                {attachments.map((image) => (
+                  <Thumbnail image={image} />
+                ))}
+              </div>
+            ) : null}
               {updatedAt && isEdited ? (
                 <span className="!text-xs text-muted-foreground">(edited)</span>
               ) : null}

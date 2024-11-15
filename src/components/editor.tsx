@@ -156,8 +156,8 @@ const Editor = ({
     quill?.insertText(quill?.getSelection()?.index || 0, emoji.native);
   }
   const isEmpty =
-    !attachments && text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
-
+    !attachments.length  && text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
+    
   return (
     <div className="flex flex-col">
       <input

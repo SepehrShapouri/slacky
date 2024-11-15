@@ -13,6 +13,7 @@ export type ModifiedMessage = {
   parentId: string | null;
   key?: string;
   isPending?: boolean;
+  replies?:ModifiedMessage[],
   member?: {
     id: number;
     role: $Enums.Role;
@@ -26,7 +27,7 @@ export type ModifiedMessage = {
     };
   };
   userId?: number;
-  reactions: ReactionType[] | []
+  reactions: ReactionType[] | [];
 };
 export type ReactionType = Reactions & {
   member: { user: { fullname: string; avatarUrl: string } };

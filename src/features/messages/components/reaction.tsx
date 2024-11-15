@@ -47,9 +47,10 @@ function Reaction({ reaction,onReact,messageId}: ReactionProps) {
           <div className="flex flex-col items-start gap-1">
             <p className="text-sm text-muted-foreground flex gap-1">
               <p className="text-zinc-900">
-                {reaction.users.slice(0, 2).join(", ")}
+                {/* {reaction.users.slice(0, 2).join(",")}
                 {reaction.users.length > 2 &&
-                  ` and ${reaction.users.length - 2} more`}
+                  ` and ${reaction.users.length - 2} more`} */}
+                  {reaction.users.length} people
               </p>
               {" reacted with "}
               {reaction.value}

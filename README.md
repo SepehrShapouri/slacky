@@ -1,3 +1,6 @@
+Thought process
+
+
 content that needs to be modified in threads
 we have the main parent message.
 it can be deleted from the panel,
@@ -49,3 +52,19 @@ meaning we have to omit the reaction to the socket, and listen for it in both th
 [x] - realtime updates for parent message deletion
 [x] - realtime updates for parent message editing
 [x] - realtime updates for parent message reactions
+
+
+
+---------
+first, we need to submit the message through the editor in the threads panel,
+the message will be a reply to the parent message
+meaning we need the parentId, and then we submit it to the socket.
+all other clients connected, should receieve this reply in their threads panel in realtime.
+we also need to update the message list, so we can show realtime updates for the amount of replies a 
+message has.
+
+[x] - create threads list component.
+[x] - submit the message from the editor to the socket.
+[x] - create thread handler in express
+[x] - emit the reply to all connected clients in both the channles namespace and threads namespace
+[x] - listen for new replies in the threads panel, and update ui upon new reply
