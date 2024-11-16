@@ -12,7 +12,7 @@ function ThreadsPanel() {
     <>
       {showPanel ? (
         <>
-          <ResizableHandle withHandle />
+          <ResizableHandle />
           <ResizablePanel minSize={20} defaultSize={29} className="shadow-md shadow-[#5e2c5f]/50">
             {parentMessageId ? (
               <Thread messageId={parentMessageId} onClose={onClose} />

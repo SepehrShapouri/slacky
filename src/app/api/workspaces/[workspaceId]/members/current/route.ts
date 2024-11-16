@@ -17,7 +17,9 @@ export async function GET(
           userId: user.id,
           workspaceId: workspaceId,
         },
+        
       },
+      include:{user:true}
     });
 
     if (!member) {

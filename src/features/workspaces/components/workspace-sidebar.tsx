@@ -19,6 +19,7 @@ import {
 } from "lucide-react";
 import { useChannelId } from "@/hooks/use-channel-id";
 import { useSocket } from "@/hooks/use-socket";
+import { useCreateOnlineUsersAtom } from "../store/use-create-online-users-atom";
 
 interface OnlineUser {
   memberId: number;
@@ -32,7 +33,7 @@ function WorkspaceSidebar() {
   const { channels } = useGetChannels({ workspaceId });
   const { members } = useGetMembers({ workspaceId });
   const { isMemberLoading, member } = useCurrentMember({ workspaceId });
-  const [onlineUsers, setOnlineUsers] = useState<OnlineUser[]>([]);
+  const [onlineUsers, setOnlineUsers] = useCreateOnlineUsersAtom()
   const [_open, setOpen] = useCreateChannelModalAtom();
   const socket = useSocket("workspaces");
   
@@ -73,8 +74,8 @@ function WorkspaceSidebar() {
 
   if (isLoading || isMemberLoading) {
     return (
-      <div className="flex flex-col bg-[#5e2c5f] h-full items-center justify-center">
-        <Loader2 className=" shrink-0 !size-5 animate-spin text-white" />
+      <div className="flex flex-col bg-[#5e2c5f] h-full items-center justify-center w-full">
+        <Loader2 className=" shrink-0 !size-5 animate-spin text-white w-full" />
       </div>
     );
   }
@@ -87,7 +88,7 @@ function WorkspaceSidebar() {
     );
   }
   return (
-    <div className="flex flex-col bg-[#5e2c5f] h-full">
+    <div className="flex flex-col bg-[#5e2c5f] h-full w-full ">
       <WorkspaceHeader workspace={workspace} isAdmin={member.role == "ADMIN"} />
       <div className="flex flex-col px-2 mt-3">
         <SidebarItem label="Threads" icon={MessageSquareText} id="threads" />

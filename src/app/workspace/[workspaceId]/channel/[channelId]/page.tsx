@@ -7,13 +7,11 @@ import Header from "@/features/channels/components/header";
 import { useCurrentMember } from "@/features/members/api/use-current-member";
 import { ModifiedMessage, ReactionType } from "@/features/messages/lib/types";
 import { useCreateMessagesAtom } from "@/features/messages/store/use-create-messages-atom";
-import ThreadsPanel from "@/features/threads/components/threads-panel";
 import { generateJoinCode } from "@/features/workspaces/lib/utils";
 import { useChannelId } from "@/hooks/use-channel-id";
 import useSession from "@/hooks/use-session";
 import { useSocket } from "@/hooks/use-socket";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { Reactions } from "@prisma/client";
 import { Loader2, TriangleAlert } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -24,7 +22,6 @@ type EditorValue = {
 
 function Page() {
   const [editorKey, setEditorkey] = useState<number>(0);
-  // const [messages, setMessages] = useState<ModifiedMessage[]>([]);
   const [messages, setMessages] = useCreateMessagesAtom();
 
   const workspaceId = useWorkspaceId();
