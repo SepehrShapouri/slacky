@@ -7,5 +7,5 @@ export const github = new GitHub(
 export const google = new Google(
   process.env.GOOGLE_CLIENT_ID!,
   process.env.GOOGLE_CLIENT_SECRET!,
-  "http://localhost:3001/api/auth/google/callback"
+  "https://slacky-gamma.vercel.app/api/auth/google/callback"
 );
