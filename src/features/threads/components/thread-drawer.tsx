@@ -10,7 +10,7 @@ function ThreadDrawer({onClose,parentMessageId}:{onClose:()=>void,parentMessageI
   
   return (
     <Drawer open={true} onOpenChange={onClose}>
-      <DrawerContent className="h-[800px] ">
+      <DrawerContent className="h-[80dvh]">
         <Thread messageId={parentMessageId} onClose={onClose} />
         
       </DrawerContent>
