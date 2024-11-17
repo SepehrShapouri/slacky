@@ -31,7 +31,7 @@ function WorkspaceLayout({ children }: React.PropsWithChildren) {
           <ThreadsPanel/>
         </ResizablePanelGroup>
       </div>
-      <div className=" h-[calc(100vh-80px)] md:hidden">
+      <div className=" h-[calc(100vh-60px)] md:hidden">
         <AppSidebar/>
         {children}
       </div>
