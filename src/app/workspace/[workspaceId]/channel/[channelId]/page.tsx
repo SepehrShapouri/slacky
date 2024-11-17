@@ -1,4 +1,5 @@
 "use client";
+import AnimatedLogo from "@/components/animated-logo";
 import MessageList from "@/components/message-list";
 import useGetChannel from "@/features/channels/api/use-get-channel";
 import { useGetMessages } from "@/features/channels/api/use-get-channel-messages";
@@ -266,8 +267,11 @@ function Page() {
 
   if (isChannelLoading)
     return (
-      <div className="h-full flex-1 flex items-center justify-center">
-        <Loader2 className="animate-spin size-6 text-muted-foreground" />
+      <div className="h-full flex-1 flex-col flex items-center justify-center">
+        <AnimatedLogo/>
+        <p className="text-sm text-muted-foreground">
+          Loading channel...
+        </p>
       </div>
     );
 

@@ -9,7 +9,7 @@ function Providers({ children }: React.PropsWithChildren) {
   return (
     <QueryClientProvider client={client}>
       <JotaiProvider>
-        <SidebarProvider>{children}</SidebarProvider>
+  {children}
       </JotaiProvider>
     </QueryClientProvider>
   );

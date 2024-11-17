@@ -29,7 +29,7 @@ type ChatInputProps = {
 function ChatInput({ placeholder, onSubmit, editorKey }: ChatInputProps) {
   const editorRef = useRef<Quill | null>(null);
   return (
-    <div className="md:px-5 w-full ">
+    <div className="px-5 w-full">
       <Editor
         key={editorKey}
         placeholder={placeholder}

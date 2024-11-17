@@ -16,6 +16,7 @@ import useGetWorkspaceInfo from "@/features/workspaces/api/use-get-workspace-inf
 import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
+import AnimatedLogo from "@/components/animated-logo";
 function page() {
   const router = useRouter();
   const workspaceId = useWorkspaceId();
@@ -40,7 +41,8 @@ function page() {
   if (isWorkspaceInfoLoading)
     return (
       <div className="h-full flex items-center justify-center">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+        <AnimatedLogo/>
+        <p className="font-medium text-muted-foreground text-md">Loading workspace info...</p>
       </div>
     );
 

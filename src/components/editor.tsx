@@ -167,7 +167,7 @@ const Editor = ({
         onChange={(e) => startUpload([e.target.files![0]])}
         className="hidden"
       />
-      <div className="flex flex-col md:border border-slate-200 rounded-t-2xl md:rounded-md overflow-hidden focus-within:border-slate-300 focus-within:shadow-sm transition bg-white">
+      <div className="flex flex-col border border-slate-200 rounded-md overflow-hidden focus-within:border-slate-300 focus-within:shadow-sm transition bg-white">
         <div ref={containerRef} className="h-full ql-custom" />
         <div className="flex">
           {!!attachments &&

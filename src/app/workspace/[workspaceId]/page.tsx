@@ -1,12 +1,13 @@
 "use client";
+import AnimatedLogo from "@/components/animated-logo";
 import useGetChannels from "@/features/channels/api/use-get-channels";
 import { useCreateChannelModalAtom } from "@/features/channels/store/use-create-channel-modal";
 import { useCurrentMember } from "@/features/members/api/use-current-member";
 import { useGetWorkspace } from "@/features/workspaces/api/use-get-workspace";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { Loader2, TriangleAlert } from "lucide-react";
+import { TriangleAlert } from "lucide-react";
 import { useRouter } from "next/navigation";
-import React, { useEffect, useMemo } from "react";
+import { useEffect, useMemo } from "react";
 function page() {
   const workspaceId = useWorkspaceId();
   const router = useRouter();
@@ -45,10 +46,11 @@ function page() {
     router,
     workspaceId,
   ]);
-  if (isWorkspaceLoading || isChannelsLoading || isMemberLoading) {
+  if (isWorkspaceLoading || isChannelsLoading || isMemberLoading ) {
     return (
       <div className="h-full flex-1 flex items-center justify-center flex-col gap-2">
-        <Loader2 className="size-6 animate-spin text-muted-foreground" />
+        <AnimatedLogo/>
+        <p className="text-sm text-muted-foreground">Loading workspace...</p>
       </div>
     );
   }
@@ -71,7 +73,6 @@ function page() {
         </span>
       </div>
     );
-  
   
 }
 

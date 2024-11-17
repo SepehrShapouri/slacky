@@ -1,4 +1,7 @@
 "use client";
+
+
+import EntryPage from "@/components/entry-page";
 import { useGetWorkspaces } from "@/features/workspaces/api/use-get-workspaces";
 import { useCreateWorkspaceModalAtom } from "@/features/workspaces/store/use-create-workspace-modal";
 import { useRouter } from "next/navigation";
@@ -19,5 +22,5 @@ export default function Home() {
       setOpen(true);
     }
   }, [workspaces, open, setOpen, isLoading, router]);
-  return <></>;
+  return <EntryPage/>;
 }

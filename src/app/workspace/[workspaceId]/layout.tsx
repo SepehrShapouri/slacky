@@ -9,8 +9,10 @@ import Sidebar from "../../../features/workspaces/components/sidebar";
 import Toolbar from "../../../features/workspaces/components/toolbar";
 import ThreadsPanel from "@/features/threads/components/threads-panel";
 import { AppSidebar } from "@/components/app-sidebar";
+import { SidebarProvider } from "@/components/ui/sidebar";
 function WorkspaceLayout({ children }: React.PropsWithChildren) {
   return (
+    <SidebarProvider>
     <div className="h-full w-full">
       <Toolbar />
       <div className=" h-[calc(100vh-40px)] hidden md:flex">
@@ -31,11 +33,12 @@ function WorkspaceLayout({ children }: React.PropsWithChildren) {
           <ThreadsPanel/>
         </ResizablePanelGroup>
       </div>
-      <div className=" h-[calc(100vh-60px)] md:hidden">
+      <div className=" h-[calc(100vh-80px)] md:hidden">
         <AppSidebar/>
         {children}
       </div>
     </div>
+    </SidebarProvider>
   );
 }
 
