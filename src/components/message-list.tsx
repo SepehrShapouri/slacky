@@ -6,6 +6,7 @@ import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import { cn } from "@/lib/utils";
 import { differenceInMinutes, format, isToday, isYesterday } from "date-fns";
 import React, { useState } from "react";
+import MessageListSkeleton from "./message-list-skeleton";
 type MessageListProps = {
   memberName?: string;
   memberImage?: string;
@@ -47,7 +48,6 @@ function MessageList({
     if (isYesterday(date)) return "yesterday";
     return format(date, "EEEE, MMMM d");
   }
-
   return (
     <div
       className={cn(
@@ -92,7 +92,8 @@ function MessageList({
                 onDelete={onDelete}
                 threadImageFallback={
                   message.replies?.length
-                    ? message.replies[0].member?.user.fullname[0].toUpperCase() || undefined
+                    ? message.replies[0].member?.user.fullname[0].toUpperCase() ||
+                      undefined
                     : undefined
                 }
                 createdAt={message.createdAt!}
@@ -103,7 +104,9 @@ function MessageList({
                     : undefined
                 }
                 threadTimestamp={
-                  message.replies?.length &&message.replies[0] ? message.replies[0].createdAt : undefined
+                  message.replies?.length && message.replies[0]
+                    ? message.replies[0].createdAt
+                    : undefined
                 }
                 isEditing={editingId == message.id}
                 setEditingId={(id: string | null) => setEditingId(id)}

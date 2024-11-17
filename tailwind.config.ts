@@ -101,9 +101,14 @@ const config: Config = {
   			fadeIn: 'fadeIn 0.5s ease-out',
   			fadeOut: 'fadeOut 0.3s ease-in',
   			'caret-blink': 'caret-blink 1.25s ease-out infinite'
-  		}
+  		},
+		typography:{DEFAULT:{
+			css:{
+				maxWidth:'none'
+			}
+		}}
   	}
   },
-  plugins: [require("tailwindcss-animate")],
+  plugins: [require("tailwindcss-animate"),require("@tailwindcss/typography")],
 };
 export default config;

@@ -6,7 +6,7 @@ import Image from "next/image";
 import Quill, { QuillOptions } from "quill";
 import { Delta, Op } from "quill/core";
 import "quill/dist/quill.snow.css";
-import 'highlight.js/styles/monokai-sublime.css';
+import "highlight.js/styles/monokai-sublime.css";
 
 import {
   MutableRefObject,
@@ -84,7 +84,50 @@ const Editor = ({
           [{ direction: "rtl" }],
 
           [{ list: "ordered" }, { list: "bullet" }, { list: "check" }],
-          ["code-block"],
+          ["code-block", "blockquote"],
+          [{ header: "1"},{header:'2'},{header:3}],
+          [
+            {
+              color: [
+                "white",
+                "black",
+                "#b91c1c",
+                "#c2410c",
+                "#a16207",
+                "#4d7c0f",
+                "#15803d",
+                "#047857",
+                "#0e7490",
+                "#0369a1",
+                '#1d4ed8',
+                '#4338ca',
+                '#6d28d9',
+                '#a21caf',
+                '#be185d',
+                '#be123c'
+              ],
+            },
+            {
+              background: [
+                "#fb7185",
+                "#f472b6",
+                "#e879f9",
+                "#c084fc",
+                "#a78bfa",
+                "#818cf8",
+                "#60a5fa",
+                "#38bdf8",
+                "#22d3ee",
+                "#34d399",
+                "#facc15",
+                "#fb923c",
+                '#fecaca',
+                '#e5e5e5',
+                '#64748b',
+                "black",
+              ],
+            },
+          ],
         ],
         syntax: {
           highlight: (text: any) => hljs.highlightAuto(text).value,
@@ -156,8 +199,8 @@ const Editor = ({
     quill?.insertText(quill?.getSelection()?.index || 0, emoji.native);
   }
   const isEmpty =
-    !attachments.length  && text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
-    
+    !attachments.length && text.replace(/<(.|\n)*?>/g, "").trim().length === 0;
+
   return (
     <div className="flex flex-col">
       <input

@@ -82,16 +82,15 @@ function Thread({ messageId, onClose }: ThreadProps) {
   useEffect(() => {
     if (socket && channelId) {
       socket.emit("join-room", channelId, member?.id);
-      socket.on("user-online", (memberId: number) => {
-        console.log("user is online", memberId);
-      });
 
       socket.on("message-updated", async (updatedMessage: ModifiedMessage) => {
-        setParentMessage((prevParentMessage) => ({
-          ...prevParentMessage!,
-          body: updatedMessage.body,
-          updatedAt: new Date(),
-        }));
+        if (updatedMessage.id == messageId) {
+          setParentMessage((prevParentMessage) => ({
+            ...prevParentMessage!,
+            body: updatedMessage.body,
+            updatedAt: new Date(),
+          }));
+        }
       });
 
       socket.on(
@@ -100,13 +99,17 @@ function Thread({ messageId, onClose }: ThreadProps) {
           if (parentMessage?.memberId != member?.id) {
             toast.info("This thread has been deleted!");
           }
-          setParentMessage(undefined);
-          onClose();
+          if (deletedMessageId == messageId) {
+            setParentMessage(undefined);
+            onClose();
+          }
         }
       );
 
       socket.on("reaction-added", (updatedMessage: ModifiedMessage) => {
-        setParentMessage(updatedMessage);
+        if (updatedMessage.id == messageId) {
+          setParentMessage(updatedMessage);
+        }
       });
 
       socket.on("error", (error: string) => {

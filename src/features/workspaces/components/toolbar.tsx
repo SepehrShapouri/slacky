@@ -16,6 +16,7 @@ import { Input } from "@/components/ui/input";
 import WorkspaceHeader from "./workspace-header";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import { Skeleton } from "@/components/ui/skeleton";
 function Toolbar() {
   const workspaceId = useWorkspaceId();
   const { workspace, isLoading } = useGetWorkspace({ id: workspaceId });
@@ -55,18 +56,11 @@ function Toolbar() {
       >
         <div className="flex items-center justify-between w-full gap-5">
           <div className="flex items-center gap-2">
-            {/* <Button
-              variant="transparent"
-              className="bg-[#701E71]"
-              size="iconSm"
-              onClick={() => setToolbarOpen((prev) => !prev)}
-            >
-              <ListFilter />
-            </Button> */}
+
             <SidebarTrigger/>
             <Separator orientation="vertical" className="h-[30px] bg-accent/25"/>
             {isLoading || !workspace ? (
-              <></>
+              <Skeleton className="size-8 rounded-md"/>
             ) : (
               <WorkspaceHeader
                 isAdmin={member?.role == "ADMIN"}

@@ -156,3 +156,8 @@ select.ql-ui {
 div.ql-code-block{
   padding: 0 0.5rem !important;
 }
+.ql-picker-options{
+  z-index: 9999999 !important;
+  position: absolute !important;
+  
+}

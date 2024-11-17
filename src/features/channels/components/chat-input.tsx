@@ -11,7 +11,8 @@ const Editor = dynamic(
   },
   {
     ssr: false,
-    loading: () =><div className="mb-[31px]">
+    
+    loading: () =><div className="md:mb-[31px]">
       <EditorSkeletons/>
     </div>,
   }

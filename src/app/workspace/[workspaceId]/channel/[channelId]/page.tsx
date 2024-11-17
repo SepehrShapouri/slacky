@@ -1,6 +1,7 @@
 "use client";
 import AnimatedLogo from "@/components/animated-logo";
 import MessageList from "@/components/message-list";
+import MessageListSkeleton from "@/components/message-list-skeleton";
 import useGetChannel from "@/features/channels/api/use-get-channel";
 import { useGetMessages } from "@/features/channels/api/use-get-channel-messages";
 import ChatInput from "@/features/channels/components/chat-input";
@@ -115,7 +116,6 @@ function Page() {
         );
       });
       socket.on("new-reply", (newReply: ModifiedMessage) => {
-        console.log('new reply')
         setMessages((prevMessages) =>
           prevMessages.map((msg) => {
             const existingReply = msg.replies?.find((r) => r.id == newReply.id);
@@ -268,10 +268,8 @@ function Page() {
   if (isChannelLoading)
     return (
       <div className="h-full flex-1 flex-col flex items-center justify-center">
-        <AnimatedLogo/>
-        <p className="text-sm text-muted-foreground">
-          Loading channel...
-        </p>
+        <AnimatedLogo />
+        <p className="text-sm text-muted-foreground">Loading channel...</p>
       </div>
     );
 
@@ -284,7 +282,7 @@ function Page() {
         </p>
       </div>
     );
-
+    if(isMessagesLoading) return <MessageListSkeleton/>
   return (
     <>
       <div className="flex flex-col h-full">
