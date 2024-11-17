@@ -4,13 +4,16 @@ import { usePanel } from "@/hooks/use-panel";
 import { Loader2 } from "lucide-react";
 import React from "react";
 import Thread from "./thread";
+import { useIsMobile } from "@/hooks/use-mobile";
+import ThreadDrawer from "./thread-drawer";
 
 function ThreadsPanel() {
   const { parentMessageId, onClose } = usePanel();
   const showPanel = !!parentMessageId;
+  const isMobile = useIsMobile()
   return (
     <>
-      {showPanel ? (
+      {showPanel && !isMobile ? (
         <>
           <ResizableHandle />
           <ResizablePanel minSize={20} defaultSize={29} className="shadow-md shadow-[#5e2c5f]/50">
@@ -24,6 +27,7 @@ function ThreadsPanel() {
           </ResizablePanel>
         </>
       ) : null}
+      {showPanel && isMobile ? <ThreadDrawer parentMessageId={parentMessageId} onClose={onClose}/> : null}
     </>
   );
 }

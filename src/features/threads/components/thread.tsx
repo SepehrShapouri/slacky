@@ -23,6 +23,7 @@ import { AlertTriangle, Loader2, XIcon } from "lucide-react";
 import { generateJoinCode } from "@/features/workspaces/lib/utils";
 import Quill from "quill";
 import MessageList from "@/components/message-list";
+import { useIsMobile } from "@/hooks/use-mobile";
 type EditorValue = {
   attachments?: string[];
   body: string;
@@ -47,9 +48,9 @@ type ThreadProps = {
 
 function Thread({ messageId, onClose }: ThreadProps) {
   const [editorKey, setEditorkey] = useState<number>(0);
-  // const [threadMessages, setThreadMessages] = useState<ModifiedMessage[]>();
+
   const editorRef = useRef<Quill | null>(null);
-  //threadId = messageId+channelI
+
   const { user } = useSession();
   const socket = useSocket("channels");
   const threadSocket = useSocket("threads");
@@ -538,7 +539,7 @@ function Thread({ messageId, onClose }: ThreadProps) {
           onEdit={editReply}
         />
       )}
-      <div className="px-4">
+      <div className="px-4 pb-8 md:pb-0">
         <Editor
           onSubmit={onSubmit}
           disabled={false}

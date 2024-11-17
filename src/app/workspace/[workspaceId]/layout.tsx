@@ -10,6 +10,7 @@ import Toolbar from "../../../features/workspaces/components/toolbar";
 import ThreadsPanel from "@/features/threads/components/threads-panel";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
+import ThreadDrawer from "@/features/threads/components/thread-drawer";
 function WorkspaceLayout({ children }: React.PropsWithChildren) {
   return (
     <SidebarProvider>

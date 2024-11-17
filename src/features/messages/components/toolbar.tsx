@@ -3,6 +3,7 @@ import { EmojiPopover } from "@/components/emoji-popover";
 import Hint from "@/components/hint";
 import { Button } from "@/components/ui/button";
 import { useConfirm } from "@/hooks/use-confirm";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { MessageSquareTextIcon, Pencil, SmileIcon, Trash } from "lucide-react";
 
 type ToolbarProps = {
