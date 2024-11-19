@@ -73,7 +73,6 @@ function Page() {
         console.log("user is online", memberId);
       });
       socket.on("new-message", (message: ModifiedMessage) => {
-        console.log("new message", message);
         setMessages((prevMessages) => {
           const existingMessageIndex = prevMessages.findIndex(
             (m) => m.key === message.key
