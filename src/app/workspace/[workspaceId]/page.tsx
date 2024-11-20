@@ -30,7 +30,7 @@ function page() {
     )
       return;
     if (channelId) {
-      router.push(`/workspace/${workspaceId}/channel/${channelId}`);
+      // router.push(`/workspace/${workspaceId}/channel/${channelId}`);
     } else if (!open && isAdmin) {
       setOpen(true);
     }
