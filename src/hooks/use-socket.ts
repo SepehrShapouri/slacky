@@ -6,7 +6,7 @@ const SOCKET_SERVER_URL =
     ? process.env.NEXT_PUBLIC_SOCKET_SERVER_URL
     : "http://localhost:3000";
 
-export const useSocket = (namespace: "channels" | "workspaces" | "threads") => {
+export const useSocket = (namespace: "channels" | "workspaces" | "threads" | "conversation") => {
   const [socket, setSocket] = useState<Socket | null>(null);
 
   useEffect(() => {

@@ -5,11 +5,11 @@ export type ModifiedMessage = {
   id: string;
   createdAt?: Date;
   updatedAt?: Date;
-  channelId: string | null;
+  channelId?: string | null;
   body: string;
   attachments: string[];
   memberId: number;
-  conversationId: string | null;
+  conversationId?: string | null;
   parentId: string | null;
   key?: string;
   isPending?: boolean;

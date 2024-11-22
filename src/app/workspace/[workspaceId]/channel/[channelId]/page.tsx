@@ -294,7 +294,6 @@ function Page() {
           onEdit={editMessage}
           onReact={reactToMessage}
         />
-
         <ChatInput
           editorKey={editorKey}
           placeholder={`Message # ${channel.name}`}

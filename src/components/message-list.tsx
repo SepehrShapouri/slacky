@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { differenceInMinutes, format, isToday, isYesterday } from "date-fns";
 import React, { useState } from "react";
 import MessageListSkeleton from "./message-list-skeleton";
+import UserBanner from "@/features/direct-messages/components/user-banner";
 type MessageListProps = {
   memberName?: string;
   memberImage?: string;
@@ -17,11 +18,16 @@ type MessageListProps = {
   onDelete: (messageId: string) => void;
   onEdit: (messageId: string, newBody: string) => void;
   onReact: (reaction: string, messageId: string) => void;
+  avatarUrl?: string;
+  userName?: string;
+  userNameFallback?: string;
 };
 const TIME_THRESHOLD = 5;
 function MessageList({
   data,
-
+  avatarUrl,
+  userNameFallback,
+  userName,
   channelName,
   channelCreationTime,
   memberImage,
@@ -122,6 +128,13 @@ function MessageList({
       ))}
       {variant === "channel" && channelName && channelCreationTime && (
         <ChannelHero name={channelName} creationTime={channelCreationTime} />
+      )}
+      {variant == "conversation" && (
+        <UserBanner
+          avatarUrl={avatarUrl}
+          name={userName}
+          fallback={userNameFallback}
+        />
       )}
     </div>
   );
