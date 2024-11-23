@@ -1,12 +1,15 @@
 "use client";
 import AnimatedLogo from "@/components/animated-logo";
 import MessageList from "@/components/message-list";
+import MessageListSkeleton from "@/components/message-list-skeleton";
 import ChatInput from "@/features/channels/components/chat-input";
 import Header from "@/features/direct-messages/components/header";
 import useFindOrCreateConversation from "@/features/direct-messages/hooks/use-find-or-create-conversation";
 import { useGetMessages } from "@/features/direct-messages/hooks/use-get-messages";
+import { generateConversationKey } from "@/features/direct-messages/lib/utils";
 import { useCurrentMember } from "@/features/members/api/use-current-member";
 import { ModifiedMessage, ReactionType } from "@/features/messages/lib/types";
+import { useCreateMessagesAtom } from "@/features/messages/store/use-create-messages-atom";
 import { generateJoinCode } from "@/features/workspaces/lib/utils";
 import { useMemberId } from "@/hooks/use-member-id";
 import useSession from "@/hooks/use-session";
@@ -23,16 +26,16 @@ type EditorValue = {
 function page() {
   const [editorKey, setEditorKey] = useState<number>(0);
   const socket = useSocket("conversation");
-  const [messages, setMessages] = useState<ModifiedMessage[]>([]);
+  const [messages, setMessages] = useCreateMessagesAtom();
   const workspaceId = useWorkspaceId();
   const memberId = useMemberId();
-  const {user} = useSession()
+  const { user } = useSession();
   const { member: currentMember, isMemberLoading: isCurrentMemberLoading } =
     useCurrentMember({ workspaceId });
 
   const { member, isMemberLoading } = useSingleMember({ memberId });
   const memberOneId = currentMember?.id!;
-  const memberTwoId = member?.id!;
+  const memberTwoId = memberId!;
   const { conversation, isConversationloading } = useFindOrCreateConversation({
     workspaceId,
     memberOneId,
@@ -45,7 +48,6 @@ function page() {
   });
   useEffect(() => {
     if (isMessagesLoading) return;
-
     if (!initialMessages) return;
     const formattedMessages: ModifiedMessage[] = initialMessages.map(
       (item) => ({
@@ -69,13 +71,9 @@ function page() {
     setMessages(formattedMessages);
   }, [initialMessages, setMessages, isMessagesLoading]);
   useEffect(() => {
-    console.log('attempting joining conversation')
     if (socket && conversationId) {
-      console.log('attempting joining conversation test')
-      socket.emit("join-room", conversationId, member?.id);
-      socket.on("user-online", (memberId: number) => {
-        console.log("user is online", memberId);
-      });
+      socket.emit("join-room", conversationId, currentMember?.id);
+
       socket.on("new-message", (message: ModifiedMessage) => {
         setMessages((prevMessages) => {
           const existingMessageIndex = prevMessages.findIndex(
@@ -106,7 +104,7 @@ function page() {
           setMessages((prevMessages) =>
             prevMessages.filter((msg) => msg.id !== deletedMessageId)
           );
-          if (memberId == member?.id) {
+          if (memberId == currentMember?.id) {
             toast.success("Message deleted");
           }
         }
@@ -152,13 +150,19 @@ function page() {
 
   const onSubmit = useCallback(
     ({ body, attachments }: EditorValue) => {
-      if (socket && body && member && currentMember &&  workspaceId && conversationId) {
+      if (
+        socket &&
+        body &&
+        member &&
+        currentMember &&
+        workspaceId &&
+        conversationId
+      ) {
         const key = generateJoinCode();
         const newMessage: ModifiedMessage = {
           body,
           memberId: currentMember?.id,
           workspaceId,
-          
           userId: currentMember.userId,
           key,
           id: key,
@@ -184,7 +188,7 @@ function page() {
         setEditorKey((prev) => prev + 1);
       }
     },
-    [socket, member, workspaceId, conversationId]
+    [socket, member, workspaceId, conversationId, currentMember]
   );
   const deleteMessage = useCallback(
     (messageId: string) => {
@@ -200,11 +204,17 @@ function page() {
 
   const editMessage = useCallback(
     (messageId: string, newBody: string) => {
-      if (socket && newBody.trim() && member && workspaceId && conversationId) {
+      if (
+        socket &&
+        newBody.trim() &&
+        currentMember &&
+        workspaceId &&
+        conversationId
+      ) {
         const editedMessage = {
           id: messageId,
           body: newBody,
-          memberId: member.id,
+          memberId: currentMember.id,
           workspaceId,
           conversationId,
         };
@@ -217,19 +227,19 @@ function page() {
         socket.emit("edit-message", editedMessage);
       }
     },
-    [socket, member, workspaceId, conversationId]
+    [socket, currentMember, workspaceId, conversationId]
   );
 
   const reactToMessage = useCallback(
     (reaction: string, messageId: string) => {
-      if (!member || !user) return;
+      if (!currentMember || !user) return;
 
       setMessages((prevMessages) => {
         return prevMessages.map((msg) => {
           if (msg.id !== messageId) return msg;
 
           const existingReactionIndex = msg.reactions.findIndex(
-            (r) => r.memberId === member.id && r.value === reaction
+            (r) => r.memberId === currentMember.id && r.value === reaction
           );
 
           if (existingReactionIndex !== -1) {
@@ -251,7 +261,7 @@ function page() {
               },
             },
             value: reaction,
-            memberId: member.id,
+            memberId: currentMember.id,
             messageId,
           };
           return { ...msg, reactions: [...msg.reactions, newReaction] };
@@ -261,11 +271,11 @@ function page() {
       socket?.emit("reaction", {
         reaction,
         messageId,
-        memberId: member.id,
+        memberId: currentMember.id,
         conversationId,
       });
     },
-    [member, user, conversationId, socket]
+    [currentMember, user, conversationId, socket]
   );
 
   if (isCurrentMemberLoading || isMemberLoading) {
@@ -276,6 +286,7 @@ function page() {
       </div>
     );
   }
+  if (isMessagesLoading) return <MessageListSkeleton />;
   return (
     <div className="flex flex-col h-full">
       <Header

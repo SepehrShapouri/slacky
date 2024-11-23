@@ -2,22 +2,24 @@ import { ModifiedMessage } from "@/features/messages/lib/types";
 import api from "@/lib/ky";
 import { useQuery } from "@tanstack/react-query";
 
-export default function useGetMessage({
-  channelId,
+export default function useGetConvMessage({
+  conversationId,
   messageId,
   workspaceId,
 }: {
   workspaceId: string;
-  channelId: string;
+  conversationId?: string;
   messageId: string;
 }) {
   const { data: message, isLoading: isMessageLoading } = useQuery({
     queryKey: ["message", messageId],
     queryFn: () =>
       api
-        .get(`/api/channels/${workspaceId}/${channelId}/messages/${messageId}`)
+        .get(
+          `/api/workspaces/${workspaceId}/conversations/messages/${conversationId}/${messageId}`
+        )
         .json<ModifiedMessage>(),
-    enabled: !!channelId,
+    enabled: !!conversationId,
   });
   return { message, isMessageLoading };
 }

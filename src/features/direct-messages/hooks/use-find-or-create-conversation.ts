@@ -1,6 +1,7 @@
 import api from "@/lib/ky";
 import { Conversations } from "@prisma/client";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { generateConversationKey } from "../lib/utils";
 
 type useFindOrCreateConversationProps = {
   workspaceId: string;
@@ -12,7 +13,7 @@ export default function useFindOrCreateConversation({
   memberOneId,
   memberTwoId,
 }: useFindOrCreateConversationProps) {
-  const joinedMemberIds = `${memberOneId}_${memberTwoId}`;
+  const joinedMemberIds = generateConversationKey(memberOneId, memberTwoId);
   const { data: conversation, isLoading: isConversationloading } = useQuery({
     queryKey: ["conversation", workspaceId, memberOneId, memberTwoId],
     queryFn: () =>

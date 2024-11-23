@@ -24,6 +24,9 @@ import { generateJoinCode } from "@/features/workspaces/lib/utils";
 import Quill from "quill";
 import MessageList from "@/components/message-list";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useMemberId } from "@/hooks/use-member-id";
+import useFindOrCreateConversation from "@/features/direct-messages/hooks/use-find-or-create-conversation";
+import useGetConvMessage from "@/features/direct-messages/hooks/use-get-message";
 type EditorValue = {
   attachments?: string[];
   body: string;
@@ -47,21 +50,28 @@ type ThreadProps = {
 };
 
 function Thread({ messageId, onClose }: ThreadProps) {
+  const memberId = useMemberId();
+  const workspaceId = useWorkspaceId();
+  const { member } = useCurrentMember({ workspaceId });
+
+  const { conversation } = useFindOrCreateConversation({
+    workspaceId,
+    memberOneId: member?.id!,
+    memberTwoId: memberId,
+  });
   const [editorKey, setEditorkey] = useState<number>(0);
 
   const editorRef = useRef<Quill | null>(null);
 
   const { user } = useSession();
-  const socket = useSocket("channels");
+  const socket = useSocket(conversation ? "conversation" : "channels");
   const threadSocket = useSocket("threads");
 
   const [_messages, setMessages] = useCreateMessagesAtom();
 
-  const workspaceId = useWorkspaceId();
   const channelId = useChannelId();
-  const { member } = useCurrentMember({ workspaceId });
 
-  const threadId = `${messageId}_${channelId}`;
+  const threadId = `${messageId}_${conversation ? conversation.id : channelId}`;
 
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -70,19 +80,43 @@ function Thread({ messageId, onClose }: ThreadProps) {
     channelId,
     messageId,
   });
+  const { message: convMessage, isMessageLoading: isConvMessageLoading } =
+    useGetConvMessage({
+      workspaceId,
+      messageId,
+      conversationId: conversation?.id,
+    });
   const [parentMessage, setParentMessage] = useState<ModifiedMessage>();
   const [parentReplies, setParentReplies] = useState<ModifiedMessage[]>([]);
 
   useEffect(() => {
+    if (isConvMessageLoading) return;
     if (isMessageLoading) return;
-    if (!message) return;
-    setParentMessage(message);
-    setParentReplies(message.replies || []);
-  }, [isMessageLoading, setParentMessage, message, setParentReplies]);
+    if (message) {
+      setParentMessage(message);
+      setParentReplies(message.replies || []);
+      return;
+    }
+    if (convMessage) {
+      setParentMessage(convMessage);
+      setParentReplies(convMessage.replies || []);
+      return;
+    }
+  }, [
+    isMessageLoading,
+    setParentMessage,
+    message,
+    setParentReplies,
+    convMessage,
+  ]);
 
   useEffect(() => {
-    if (socket && channelId) {
-      socket.emit("join-room", channelId, member?.id);
+    if (socket && (channelId || conversation?.id)) {
+      socket.emit(
+        "join-room",
+        conversation ? conversation?.id : channelId,
+        member?.id
+      );
 
       socket.on("message-updated", async (updatedMessage: ModifiedMessage) => {
         if (updatedMessage.id == messageId) {
@@ -96,7 +130,7 @@ function Thread({ messageId, onClose }: ThreadProps) {
 
       socket.on(
         "message-deleted",
-        (deletedMessageId: string, memberId: number) => {
+        (deletedMessageId: string) => {
           if (parentMessage?.memberId != member?.id) {
             toast.info("This thread has been deleted!");
           }
@@ -128,10 +162,10 @@ function Thread({ messageId, onClose }: ThreadProps) {
         socket.off("error");
         socket.off("message-updated");
         socket.off("message-deleted");
-        socket.emit("leave-room", channelId);
+        socket.emit("leave-room", conversation ? conversation?.id : channelId);
       }
     };
-  }, [socket, channelId]);
+  }, [socket, channelId,conversation?.id]);
 
   useEffect(() => {
     if (threadSocket && threadId) {
@@ -153,7 +187,7 @@ function Thread({ messageId, onClose }: ThreadProps) {
           }
         });
         if (socket) {
-          socket.emit("send-reply", newReply, channelId);
+          socket.emit("send-reply", newReply, conversation ? conversation?.id : channelId);
         }
       });
 
@@ -213,7 +247,7 @@ function Thread({ messageId, onClose }: ThreadProps) {
         body &&
         member &&
         workspaceId &&
-        channelId &&
+        (channelId || conversation?.id) &&
         threadId
       ) {
         const key = generateJoinCode();
@@ -227,7 +261,7 @@ function Thread({ messageId, onClose }: ThreadProps) {
           id: key,
           isPending: true,
           attachments: attachments || [],
-          conversationId: null,
+          conversationId: conversation?.id,
           parentId: messageId,
           createdAt: new Date(),
           member: {
@@ -252,30 +286,31 @@ function Thread({ messageId, onClose }: ThreadProps) {
         setEditorkey((prev) => prev + 1);
       }
     },
-    [threadSocket, member, workspaceId, channelId, messageId]
+    [threadSocket, member, workspaceId, channelId, messageId,conversation?.id]
   );
 
   const deleteParentMessage = useCallback(
     (messageId: string) => {
-      if (socket && channelId) {
+      if (socket && (channelId || conversation?.id)) {
         setMessages((prevMessages) =>
           prevMessages.filter((msg) => msg.id !== messageId)
         );
-        socket.emit("delete-message", messageId, channelId);
+        socket.emit("delete-message", messageId, conversation ? conversation?.id : channelId);
       }
     },
-    [socket, channelId, messageId]
+    [socket, channelId, messageId,conversation?.id]
   );
 
   const editParentMessage = useCallback(
     async (messageId: string, newBody: string) => {
-      if (socket && newBody.trim() && member && workspaceId && channelId) {
+      if (socket && newBody.trim() && member && workspaceId && (channelId || conversation?.id)) {
         const editedMessage = {
           id: messageId,
           body: newBody,
           memberId: member.id,
           workspaceId,
           channelId,
+          conversationId:conversation?.id
         };
 
         setMessages((prevMessages) =>
@@ -291,7 +326,7 @@ function Thread({ messageId, onClose }: ThreadProps) {
         socket.emit("edit-message", editedMessage);
       }
     },
-    [socket, member, workspaceId, channelId, messageId]
+    [socket, member, workspaceId, channelId, messageId,conversation?.id]
   );
 
   const reactToParentMessage = useCallback(
@@ -369,14 +404,15 @@ function Thread({ messageId, onClose }: ThreadProps) {
         messageId,
         memberId: member.id,
         channelId,
+        conversationId:conversation?.id
       });
     },
-    [member, user, channelId, socket, messageId]
+    [member, user, channelId, socket, messageId,conversation?.id]
   );
 
   const deleteReply = useCallback(
     (replyId: string) => {
-      if (threadSocket && channelId) {
+      if (threadSocket && (channelId || conversation?.id)) {
         setParentReplies((prevReplies) =>
           prevReplies.filter((msg) => msg.id !== replyId)
         );
@@ -393,7 +429,7 @@ function Thread({ messageId, onClose }: ThreadProps) {
         newBody.trim() &&
         member &&
         workspaceId &&
-        channelId
+        (channelId || conversation?.id)
       ) {
         const editedReply = {
           id: replyId,
@@ -401,6 +437,7 @@ function Thread({ messageId, onClose }: ThreadProps) {
           memberId: member.id,
           workspaceId,
           channelId,
+          conversationId:conversation?.id
         };
 
         setParentReplies((prevReplies) =>
@@ -411,7 +448,7 @@ function Thread({ messageId, onClose }: ThreadProps) {
         threadSocket.emit("edit-message", editedReply, threadId);
       }
     },
-    [threadSocket, member, workspaceId, channelId]
+    [threadSocket, member, workspaceId, channelId,conversation?.id]
   );
 
   const reactToReply = useCallback(
