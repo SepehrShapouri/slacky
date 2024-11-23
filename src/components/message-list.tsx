@@ -8,6 +8,7 @@ import { differenceInMinutes, format, isToday, isYesterday } from "date-fns";
 import React, { useState } from "react";
 import MessageListSkeleton from "./message-list-skeleton";
 import UserBanner from "@/features/direct-messages/components/user-banner";
+import { useCreateOnlineUsersAtom } from "@/features/workspaces/store/use-create-online-users-atom";
 type MessageListProps = {
   memberName?: string;
   memberImage?: string;
@@ -37,6 +38,7 @@ function MessageList({
   onEdit,
   onReact,
 }: MessageListProps) {
+  
   const [editingId, setEditingId] = useState<string | null>(null);
   const workspaceId = useWorkspaceId();
   const { member } = useCurrentMember({ workspaceId });
@@ -131,6 +133,7 @@ function MessageList({
       )}
       {variant == "conversation" && (
         <UserBanner
+        
           avatarUrl={avatarUrl}
           name={userName}
           fallback={userNameFallback}

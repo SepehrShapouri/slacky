@@ -1,11 +1,17 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
+import { useCreateOnlineUsersAtom } from "@/features/workspaces/store/use-create-online-users-atom";
+import { useMemberId } from "@/hooks/use-member-id";
+import { GiNightSleep } from "react-icons/gi";
 type UserBannerProps = {
   avatarUrl?: string;
   fallback?: string;
   name?: string;
 };
 function UserBanner({ avatarUrl, fallback, name }: UserBannerProps) {
+  const [onlineUsers, setOnlineUsers] = useCreateOnlineUsersAtom();
+  const memberId = useMemberId();
+  const isOnline = onlineUsers.some((user) => user.memberId === memberId);
   return (
     <div className="flex flex-col h-ful gap-4 p-4">
       <div className="flex items-center gap-2.5">
@@ -17,9 +23,11 @@ function UserBanner({ avatarUrl, fallback, name }: UserBannerProps) {
         </Avatar>
         <h1 className="capitalize text-xl font-bold flex items-center gap-2">
           {name}
-          <span className="flex items-center justify-center size-2 rounded-full bg-[#481349]">
-            <span className="size-1.5 bg-[#007a5a]  rounded-full shrink-0 " />
-          </span>
+          {isOnline ? (
+            <span className="flex items-center justify-center size-2 rounded-full bg-[#481349]">
+              <span className="size-1.5 bg-[#007a5a]  rounded-full shrink-0 " />
+            </span>
+          ) : <GiNightSleep className="text-muted-foreground/80 size-4"/>}
         </h1>
       </div>
       <div className="flex flex-col gap-4 items-start">
