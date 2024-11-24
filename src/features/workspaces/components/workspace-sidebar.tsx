@@ -33,10 +33,10 @@ function WorkspaceSidebar() {
   const { channels } = useGetChannels({ workspaceId });
   const { members } = useGetMembers({ workspaceId });
   const { isMemberLoading, member } = useCurrentMember({ workspaceId });
-  const [onlineUsers, setOnlineUsers] = useCreateOnlineUsersAtom()
+  const [onlineUsers, setOnlineUsers] = useCreateOnlineUsersAtom();
   const [_open, setOpen] = useCreateChannelModalAtom();
   const socket = useSocket("workspaces");
-  
+
   useEffect(() => {
     if (socket && workspaceId && member) {
       const joinWorkspace = () => {
@@ -116,7 +116,7 @@ function WorkspaceSidebar() {
       >
         {members?.map((item) => (
           <UserItem
-            isOnline={onlineUsers.some(user => user.memberId === item.id)}
+            isOnline={onlineUsers.some((user) => user.memberId === item.id)}
             key={item.id}
             id={item.id}
             label={item.user.fullname}

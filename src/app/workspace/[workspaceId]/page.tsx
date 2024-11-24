@@ -30,13 +30,14 @@ function page() {
     )
       return;
     if (channelId) {
-      // router.push(`/workspace/${workspaceId}/channel/${channelId}`);
+      router.push(`/workspace/${workspaceId}/channel/${channelId}`);
     } else if (!open && isAdmin) {
       setOpen(true);
     }
   }, [
     channelId,
-    member,isMemberLoading,
+    member,
+    isMemberLoading,
     isAdmin,
     isWorkspaceLoading,
     isChannelsLoading,
@@ -46,10 +47,10 @@ function page() {
     router,
     workspaceId,
   ]);
-  if (isWorkspaceLoading || isChannelsLoading || isMemberLoading ) {
+  if (isWorkspaceLoading || isChannelsLoading || isMemberLoading || !channels) {
     return (
       <div className="h-full flex-1 flex items-center justify-center flex-col gap-2">
-        <AnimatedLogo/>
+        <AnimatedLogo />
         <p className="text-sm text-muted-foreground">Loading workspace...</p>
       </div>
     );
@@ -65,15 +66,14 @@ function page() {
     );
   }
 
-    return (
-      <div className="h-full flex-1 flex items-center justify-center flex-col gap-2">
-        <TriangleAlert className="size-6 text-muted-foreground" />
-        <span className="text-sm text-muted-foreground">
-          This workspace has no channels.
-        </span>
-      </div>
-    );
-  
+  return (
+    <div className="h-full flex-1 flex items-center justify-center flex-col gap-2">
+      <TriangleAlert className="size-6 text-muted-foreground" />
+      <span className="text-sm text-muted-foreground">
+        This workspace has no channels.
+      </span>
+    </div>
+  );
 }
 
 export default page;
