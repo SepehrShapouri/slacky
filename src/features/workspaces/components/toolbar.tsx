@@ -1,22 +1,21 @@
 "use client";
+import Hint from "@/components/hint";
 import DotsLoader from "@/components/loaders/dots";
-import { Button } from "@/components/ui/button";
-import { useGetWorkspace } from "@/features/workspaces/api/use-get-workspace";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import { InfoIcon, ListFilter, Search } from "lucide-react";
-import React, { useState } from "react";
-import WorkspaceSwitcher from "./workspace-switcher";
-import { cn } from "@/lib/utils";
-import UserItem from "./user-item";
-import { useCurrentMember } from "@/features/members/api/use-current-member";
-import Link from "next/link";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { motion, AnimatePresence } from "motion/react";
-import { Input } from "@/components/ui/input";
-import WorkspaceHeader from "./workspace-header";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useCurrentMember } from "@/features/members/api/use-current-member";
+import { useGetWorkspace } from "@/features/workspaces/api/use-get-workspace";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import { cn } from "@/lib/utils";
+import { InfoIcon, Search } from "lucide-react";
+import Link from "next/link";
+import { useState } from "react";
+import WorkspaceHeader from "./workspace-header";
+import { SearchBarCommand } from "@/features/search/components/search-bar-command";
+
 function Toolbar() {
   const workspaceId = useWorkspaceId();
   const { workspace, isLoading } = useGetWorkspace({ id: workspaceId });
@@ -24,23 +23,32 @@ function Toolbar() {
   const [toolbarOpen, setToolbarOpen] = useState<boolean>(false);
   return (
     <>
-      <nav className="bg-[#481349]  items-center justify-between h-10 p-1.5 hidden md:flex">
+      <nav className="bg-[#481349]  items-center justify-between h-10  p-1.5 hidden md:flex">
         <div className="flex-1" />
-        <div className="min-w-[280px] max-w-[642px] grow-[2] shrink">
-          <Button
-            size="sm"
-            className="bg-accent/25 hover:bg-accent/25 w-full justify-start h-7 px-2"
-          >
-            <Search className="size-4 text-white mr-2" />
-            <span className="text-white text-xs ">
-              Search{" "}
-              {isLoading ? (
-                <DotsLoader size={4} className="ml-1" />
-              ) : (
-                workspace?.name
-              )}
-            </span>
-          </Button>
+        <div className="min-w-[280px] max-w-[642px] grow-[2] shrink relative">
+          {toolbarOpen ? (
+            <div className=" absolute w-full -top-3.5">
+              <SearchBarCommand onClose={() => setToolbarOpen(false)} />
+            </div>
+          ) : (
+            <Hint label={`Search ${workspace?.name}`}>
+              <Button
+                onClick={() => setToolbarOpen(true)}
+                size="sm"
+                className="bg-accent/25 hover:bg-accent/25 w-full justify-start h-7 px-2"
+              >
+                <Search className="size-4 text-white mr-2" />
+                <span className="text-white text-xs ">
+                  Search{" "}
+                  {isLoading ? (
+                    <DotsLoader size={4} className="ml-1" />
+                  ) : (
+                    workspace?.name
+                  )}
+                </span>
+              </Button>
+            </Hint>
+          )}
         </div>
         <div className="ml-auto flex-1 flex items-center justify-end">
           <Button variant="transparent" size="iconSm">
@@ -56,11 +64,13 @@ function Toolbar() {
       >
         <div className="flex items-center justify-between w-full gap-5">
           <div className="flex items-center gap-2">
-
-            <SidebarTrigger/>
-            <Separator orientation="vertical" className="h-[30px] bg-accent/25"/>
+            <SidebarTrigger />
+            <Separator
+              orientation="vertical"
+              className="h-[30px] bg-accent/25"
+            />
             {isLoading || !workspace ? (
-              <Skeleton className="size-8 rounded-md"/>
+              <Skeleton className="size-8 rounded-md" />
             ) : (
               <WorkspaceHeader
                 isAdmin={member?.role == "ADMIN"}
@@ -108,3 +118,4 @@ function Toolbar() {
 }
 
 export default Toolbar;
+

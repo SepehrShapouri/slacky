@@ -14,7 +14,7 @@ import { NextResponse } from "next/server";
 export async function POST(req: Request) {
   try {
     const body: { email: string; password: string } = await req.json();
-
+console.log(body)
     const { email, password } = body;
 
     if (typeof email !== "string" || typeof password !== "string") {
