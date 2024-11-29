@@ -26,36 +26,58 @@ import useGetMembers from "@/features/members/api/use-get-members";
 import { useChannelId } from "@/hooks/use-channel-id";
 import { useWorkspaceId } from "@/hooks/use-workspace-id";
 import Link from "next/link";
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef, useCallback, memo } from "react";
 import useGetChannels from "@/features/channels/api/use-get-channels";
 import { useSearchQuery } from "../store/use-search-query";
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/ky";
-import { SearchResult } from "../types";
-
+import { Message, SearchResult } from "../types";
+import useDebounce from "@/hooks/use-debounce";
+import { CommandLoading } from "cmdk";
+import hljs from "highlight.js";
+import dynamic from "next/dynamic";
+const Renderer = dynamic(
+  () => {
+    hljs.configure({ languages: ["javascript", "html", "css"] });
+    //@ts-ignore
+    window.hljs = hljs;
+    return import("@/features/messages/components/renderer");
+  },
+  { ssr: false }
+);
 type SearchBarCommandProps = {
   onClose: () => void;
 };
 
 export function SearchBarCommand({ onClose }: SearchBarCommandProps) {
   const [query, setQuery] = useState<string>();
-  const [debouncedQuery, setDebouncedQuery] = useState<string>();
+  const debouncedQuery = useDebounce(query, 300);
+
   const workspaceId = useWorkspaceId();
 
   const { member: currentMember } = useCurrentMember({ workspaceId });
   const { members, isMembersLoading } = useGetMembers({ workspaceId });
   const { channels, isChannelsLoading } = useGetChannels({ workspaceId });
   const commandRef = useRef<HTMLDivElement>(null);
-  const [results, setResults] = useState<SearchResult[]>([]);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const { data: searchResult, isLoading: isSearchResultLoading } = useQuery({
+  const [searchResult, setSearchResult] = useState<SearchResult>();
+  const {
+    data: fetchedSearchResult,
+    isLoading: isSearchResultLoading,
+    isRefetching,
+    refetch,
+    isFetching,
+  } = useQuery({
     queryKey: ["query", debouncedQuery],
     queryFn: () =>
       api
         .get(`/api/search?q=${debouncedQuery}&workspaceId=${workspaceId}`)
-        .json<SearchResult | null>(),
-    enabled: !!debouncedQuery,
+        .json<Message[]>(),
+    enabled: !!query,
   });
+  useEffect(() => {
+    if (isSearchResultLoading || isRefetching || isFetching) return;
+    refetch();
+  }, [debouncedQuery, refetch]);
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -71,44 +93,30 @@ export function SearchBarCommand({ onClose }: SearchBarCommandProps) {
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [onClose]);
-  const handleSearch = useCallback((newQuery: string) => {
-    setQuery(newQuery);
-    const timer = setTimeout(() => {
-      setDebouncedQuery(newQuery);
-    }, 1000);
-
-    return () => clearTimeout(timer);
-  }, []);
   useEffect(() => {
-    const fetchResults = async () => {
-      if (debouncedQuery) {
-        setIsLoading(true);
-        try {
-          // In a real application, replace this with an actual API call
-          const response = await fetch(`/api/search?q=${encodeURIComponent(debouncedQuery)}`);
-          const data = await response.json();
-          setResults(data.results);
-        } catch (error) {
-          console.error('Error fetching search results:', error);
-        } finally {
-          setIsLoading(false);
-        }
-      } else {
-        setResults([]);
-      }
-    };
+    if (isChannelsLoading) return;
+    if (isMembersLoading) return;
+    setSearchResult({
+      channels: channels || [],
+      members: members || [],
+    });
+  }, [channels, members, isChannelsLoading, isMembersLoading, setSearchResult]);
+  useEffect(() => {
+    if (isSearchResultLoading) return;
 
-    fetchResults();
-  }, [debouncedQuery]);
+    setSearchResult((prev) => ({ ...prev, messages: fetchedSearchResult }));
+  }, [fetchedSearchResult, isSearchResultLoading]);
+
   return (
     <Command
+      shouldFilter={isSearchResultLoading ? false : true}
       className="rounded-lg border shadow-md relative z-[9999]"
       ref={commandRef}
     >
       <div className="w-full relative">
         <CommandInput
           value={query || undefined}
-          onValueChange={(query) => handleSearch(query)}
+          onValueChange={(query) => setQuery(query)}
           className="w-full"
           placeholder="Search for messages, replies, or anything..."
         />
@@ -122,21 +130,8 @@ export function SearchBarCommand({ onClose }: SearchBarCommandProps) {
         </Button>
       </div>
       <CommandList className="z-[999]">
-        <CommandEmpty>No results found.</CommandEmpty>
-        <CommandGroup heading="Search result">
-          {!searchResult && (
-            <p className="text-xs text-muted-foreground px-2 flex items-center">
-              <Search className="mr-1.5 size-3" />
-              Search for something
-            </p>
-          )}
-          {isLoading && (
-            <span>
-              <Loader2 className="size-3 animate-spin" />
-              <p>Searching personal...</p>
-            </span>
-          )}
-        </CommandGroup>
+        {/* <CommandEmpty>No results found.</CommandEmpty> */}
+
         <CommandGroup heading="Users">
           {isMembersLoading && (
             <CommandItem>
@@ -146,7 +141,7 @@ export function SearchBarCommand({ onClose }: SearchBarCommandProps) {
               </div>
             </CommandItem>
           )}
-          {members?.slice(0, 3)?.map((member) => (
+          {members?.map((member) => (
             <CommandItem key={member.id}>
               <Link
                 href={`/workspace/${workspaceId}/member/${member.id}`}
@@ -185,11 +180,11 @@ export function SearchBarCommand({ onClose }: SearchBarCommandProps) {
             <CommandItem>
               <div className="relative flex items-center gap-1.5">
                 <Loader2 className="size-5 animate-spin" />
-                <span className="text-sm truncate">Loading users...</span>
+                <span className="text-sm truncate">Loading channels...</span>
               </div>
             </CommandItem>
           )}
-          {channels?.slice(0, 3)?.map((channel) => {
+          {channels?.map((channel) => {
             return (
               <CommandItem>
                 <Link
@@ -203,6 +198,21 @@ export function SearchBarCommand({ onClose }: SearchBarCommandProps) {
             );
           })}
         </CommandGroup>
+        {isSearchResultLoading ||
+          isRefetching ||
+          (isFetching && (
+            <CommandLoading className="text-muted-foreground text-xs p-2">
+              Loading...
+            </CommandLoading>
+          ))}
+        {fetchedSearchResult?.map((message) => {
+          console.log(message,'message')
+          return (
+            <CommandItem key={message.id}>
+              <Renderer value={message.body} />
+            </CommandItem>
+          );
+        })}
       </CommandList>
     </Command>
   );

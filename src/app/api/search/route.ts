@@ -13,35 +13,7 @@ export async function GET(request: NextRequest) {
     );
 
   try {
-    const [members, channels, messages] = await Promise.all([
-      db.member.findMany({
-        where: {
-          workspaceId,
-          user: {
-            fullname: { contains: query, mode: "insensitive" },
-          },
-        },
-        select: {
-          id: true,
-
-          user: {
-            select: {
-              fullname: true,
-              avatarUrl: true,
-              email: true,
-            },
-          },
-        },
-      }),
-      db.channels.findMany({
-        where: {
-          workspaceId,
-          name: {
-            contains: query,
-            mode: "insensitive",
-          },
-        },
-      }),
+    const [messages] = await Promise.all([
       db.messages.findMany({
         where: {
           workspaceId,
@@ -67,7 +39,7 @@ export async function GET(request: NextRequest) {
         },
       }),
     ]);
-    return NextResponse.json({ members, channels, messages }, { status: 200 });
+    return NextResponse.json( messages , { status: 200 });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
