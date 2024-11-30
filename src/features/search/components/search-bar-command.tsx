@@ -1,41 +1,33 @@
 "use client";
-import { useDebouncedCallback } from "use-debounce";
-import {
-  CreditCard,
-  HashIcon,
-  Loader2,
-  Search,
-  Settings,
-  User,
-} from "lucide-react";
-import { MdClose } from "react-icons/md";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Command,
-  CommandEmpty,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
   CommandSeparator,
-  CommandShortcut,
 } from "@/components/ui/command";
+import useGetChannels from "@/features/channels/api/use-get-channels";
 import { useCurrentMember } from "@/features/members/api/use-current-member";
 import useGetMembers from "@/features/members/api/use-get-members";
-import { useChannelId } from "@/hooks/use-channel-id";
-import { useWorkspaceId } from "@/hooks/use-workspace-id";
-import Link from "next/link";
-import { useEffect, useState, useRef, useCallback, memo } from "react";
-import useGetChannels from "@/features/channels/api/use-get-channels";
-import { useSearchQuery } from "../store/use-search-query";
-import { useQuery } from "@tanstack/react-query";
-import api from "@/lib/ky";
-import { Message, SearchResult } from "../types";
 import useDebounce from "@/hooks/use-debounce";
+import { useWorkspaceId } from "@/hooks/use-workspace-id";
+import api from "@/lib/ky";
+import { useQuery } from "@tanstack/react-query";
 import { CommandLoading } from "cmdk";
 import hljs from "highlight.js";
+import { HashIcon, Loader2, Search } from "lucide-react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useRef, useState } from "react";
+import { MdClose } from "react-icons/md";
+import { Message, SearchResult } from "../types";
+import useGetConvMessage from "@/features/direct-messages/hooks/use-get-message";
+import useFindOrCreateConversation from "@/features/direct-messages/hooks/use-find-or-create-conversation";
+import useFindConversationById from "@/features/direct-messages/hooks/use-find-conversation-by-id";
 const Renderer = dynamic(
   () => {
     hljs.configure({ languages: ["javascript", "html", "css"] });
@@ -58,6 +50,7 @@ export function SearchBarCommand({ onClose }: SearchBarCommandProps) {
   const { member: currentMember } = useCurrentMember({ workspaceId });
   const { members, isMembersLoading } = useGetMembers({ workspaceId });
   const { channels, isChannelsLoading } = useGetChannels({ workspaceId });
+
   const commandRef = useRef<HTMLDivElement>(null);
   const [searchResult, setSearchResult] = useState<SearchResult>();
   const {
@@ -109,7 +102,8 @@ export function SearchBarCommand({ onClose }: SearchBarCommandProps) {
 
   return (
     <Command
-      shouldFilter={isSearchResultLoading ? false : true}
+      // shouldFilter={isSearchResultLoading ? false : true}
+      shouldFilter={false}
       className="rounded-lg border shadow-md relative z-[9999]"
       ref={commandRef}
     >
@@ -130,11 +124,9 @@ export function SearchBarCommand({ onClose }: SearchBarCommandProps) {
         </Button>
       </div>
       <CommandList className="z-[999]">
-        {/* <CommandEmpty>No results found.</CommandEmpty> */}
-
         <CommandGroup heading="Users">
           {isMembersLoading && (
-            <CommandItem>
+            <CommandItem onClick={() => onClose()}>
               <div className="relative flex items-center gap-1.5">
                 <Loader2 className="size-5 animate-spin" />
                 <span className="text-sm truncate">Loading users...</span>
@@ -177,7 +169,7 @@ export function SearchBarCommand({ onClose }: SearchBarCommandProps) {
         <CommandSeparator />
         <CommandGroup heading="Channels">
           {isChannelsLoading && (
-            <CommandItem>
+            <CommandItem onClick={() => onClose()}>
               <div className="relative flex items-center gap-1.5">
                 <Loader2 className="size-5 animate-spin" />
                 <span className="text-sm truncate">Loading channels...</span>
@@ -186,7 +178,7 @@ export function SearchBarCommand({ onClose }: SearchBarCommandProps) {
           )}
           {channels?.map((channel) => {
             return (
-              <CommandItem>
+              <CommandItem onClick={() => onClose()}>
                 <Link
                   href={`/workspace/${workspaceId}/channel/${channel.id}`}
                   className="flex items-center w-full"
@@ -206,14 +198,55 @@ export function SearchBarCommand({ onClose }: SearchBarCommandProps) {
             </CommandLoading>
           ))}
         {fetchedSearchResult?.map((message) => {
-          console.log(message,'message')
           return (
-            <CommandItem key={message.id}>
-              <Renderer value={message.body} />
-            </CommandItem>
+            <SearchListMessage
+              message={message}
+              onClose={onClose}
+              key={message.id}
+            />
           );
         })}
       </CommandList>
     </Command>
+  );
+}
+
+function SearchListMessage({
+  message,
+  onClose,
+}: {
+  message: Message;
+  onClose: () => void;
+}) {
+  const workspaceId = useWorkspaceId();
+  const { conversation, isConversationLoading } = useFindConversationById({
+    conversationId: message.conversationId || undefined,
+  });
+  return (
+    <>
+      {isConversationLoading ? (
+        <CommandLoading className="text-muted-foreground text-xs p-2">
+          Loading...
+        </CommandLoading>
+      ) : (
+        <CommandItem
+          key={message.id}
+          className="cursor-pointer"
+          onClick={() => onClose()}
+        >
+          <Link
+            href={`/workspace/${workspaceId}/${
+              message.channelId
+                ? `/channel/${message.channelId}#${message.id}`
+                : `member/${conversation?.memberTwoId}`
+            }`}
+            className="flex items-start gap-2 w-full"
+          >
+            <Search className="size-4 text-muted-foreground" />
+            <Renderer value={message.body} />
+          </Link>
+        </CommandItem>
+      )}
+    </>
   );
 }

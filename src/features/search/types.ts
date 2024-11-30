@@ -1,10 +1,18 @@
 import { Channels, Member } from "@prisma/client";
 export type Message = {
-  id: string;
+  member: {
+    id: number;
+    user: {
+      id: number;
+      fullname: string;
+      email: string | null;
+      avatarUrl: string | null;
+    };
+  };
   body: string;
-  createdAt: string;
-  member: { id: number; user: { name: string; avatarUrl: string } };
-  channel: { id: string; name: string } | null;
+  channelId: string | null;
+  conversationId: string | null;
+  id:string
 };
 export type SearchResult = {
   channels?: Channels[];

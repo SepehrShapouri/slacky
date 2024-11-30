@@ -20,6 +20,7 @@ export async function GET(request: NextRequest) {
           body: { contains: query, mode: "insensitive" },
         },
         select: {
+          id:true,
           channelId: true,
           conversationId: true,
           body: true,

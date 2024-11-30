@@ -51,7 +51,7 @@ type MessageProps = {
   threadCount?: number;
   threadImage?: string;
   threadTimestamp?: Date;
-  threadImageFallback?:string
+  threadImageFallback?: string;
   isEditing: boolean;
   setEditingId: (id: string) => void;
   isCompact?: boolean;
@@ -94,7 +94,7 @@ function Message({
     return reactions.filter((reaction) => reaction.value === emoji).length;
   }
   const { onOpenMessage, onClose, parentMessageId } = usePanel();
-  
+
   function isEqualDate(date1: Date, date2?: Date) {
     if (!date2 || !date1) return false;
     if (typeof date1 == "string" && typeof date2 == "string") {
@@ -137,6 +137,7 @@ function Message({
   if (isCompact)
     return (
       <div
+        id={id}
         className={cn(
           "flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative",
           isEditing && "bg-[#f2c74433] hover:bg-[#f2c74433]"
@@ -183,25 +184,29 @@ function Message({
                   ))}
                 </div>
               )}
-            {variant !== "thread" && !!threadCount && threadCount > 0 && (
-              <div onClick={()=>onOpenMessage(id)} className="cursor-pointer flex items-center gap-1.5 p-1 group/reply hover:bg-white hover:border-zinc-200 border border-transparent   rounded-md mt-1 transition">
-                <Avatar className="size-6 rounded-md ">
-                  <AvatarImage className="rounded-lg" src={threadImage} />
-                  <AvatarFallback className="bg-sky-500 font-semibold text-white rounded-lg">
-                    {threadImageFallback}
-                  </AvatarFallback>
-                </Avatar>
-                <p className="text-sm text-sky-800 font-semibold">
-                  {threadCount} {threadCount > 1 ? "replies" : "reply"}
-                </p>
-                <p className="text-xs text-muted-foreground group-hover/reply:hidden">
-                  Last reply {threadTimestamp ? formatFullTime(threadTimestamp) : 'NA'}
-                </p>
-                <p className="text-xs text-muted-foreground group-hover/reply:inline hidden">
-                  View thread
-                </p>
-              </div>
-            )}
+              {variant !== "thread" && !!threadCount && threadCount > 0 && (
+                <div
+                  onClick={() => onOpenMessage(id)}
+                  className="cursor-pointer flex items-center gap-1.5 p-1 group/reply hover:bg-white hover:border-zinc-200 border border-transparent   rounded-md mt-1 transition"
+                >
+                  <Avatar className="size-6 rounded-md ">
+                    <AvatarImage className="rounded-lg" src={threadImage} />
+                    <AvatarFallback className="bg-sky-500 font-semibold text-white rounded-lg">
+                      {threadImageFallback}
+                    </AvatarFallback>
+                  </Avatar>
+                  <p className="text-sm text-sky-800 font-semibold">
+                    {threadCount} {threadCount > 1 ? "replies" : "reply"}
+                  </p>
+                  <p className="text-xs text-muted-foreground group-hover/reply:hidden">
+                    Last reply{" "}
+                    {threadTimestamp ? formatFullTime(threadTimestamp) : "NA"}
+                  </p>
+                  <p className="text-xs text-muted-foreground group-hover/reply:inline hidden">
+                    View thread
+                  </p>
+                </div>
+              )}
             </div>
           )}
           {isPending && (
@@ -224,6 +229,7 @@ function Message({
 
   return (
     <div
+    id={id}
       className={cn(
         "flex flex-col gap-2 p-1.5 px-5 hover:bg-gray-100/60 group relative",
         isEditing && "bg-[#f2c74433] hover:bg-[#f2c74433]"
@@ -290,7 +296,10 @@ function Message({
               </div>
             )}
             {variant !== "thread" && !!threadCount && threadCount > 0 && (
-              <div onClick={()=>onOpenMessage(id)} className="cursor-pointer flex items-center gap-1.5 p-1 group/reply hover:bg-white hover:border-zinc-200 border border-transparent   rounded-md mt-1 transition">
+              <div
+                onClick={() => onOpenMessage(id)}
+                className="cursor-pointer flex items-center gap-1.5 p-1 group/reply hover:bg-white hover:border-zinc-200 border border-transparent   rounded-md mt-1 transition"
+              >
                 <Avatar className="size-6 rounded-md ">
                   <AvatarImage className="rounded-lg" src={threadImage} />
                   <AvatarFallback className="bg-sky-500 font-semibold text-white rounded-lg">
@@ -301,7 +310,8 @@ function Message({
                   {threadCount} {threadCount > 1 ? "replies" : "reply"}
                 </p>
                 <p className="text-xs text-muted-foreground group-hover/reply:hidden">
-                Last reply {threadTimestamp ? formatFullTime(threadTimestamp) : 'NA'}
+                  Last reply{" "}
+                  {threadTimestamp ? formatFullTime(threadTimestamp) : "NA"}
                 </p>
                 <p className="text-xs text-muted-foreground group-hover/reply:inline hidden">
                   View thread
