@@ -3,7 +3,7 @@ import { useMemberId } from "./use-member-id";
 import { useWorkspaceId } from "./use-workspace-id";
 import api from "@/lib/ky";
 import { Member, User } from "@prisma/client";
-type useMemberReturn = Member & {
+export type useMemberReturn = Member & {
   user: User;
 };
 export default function useSingleMember({ memberId }: { memberId: number }) {
