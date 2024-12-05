@@ -222,7 +222,6 @@ function SearchListMessage({
   const { conversation, isConversationLoading } = useFindConversationById({
     conversationId: message.conversationId || undefined,
   });
-  console.log("test")
   return (
     <>
       {isConversationLoading ? (

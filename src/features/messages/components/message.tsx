@@ -2,12 +2,11 @@ import EditorSkeletons from "@/components/editor-skeletons";
 import Hint from "@/components/hint";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { usePanel } from "@/hooks/use-panel";
-import useSession from "@/hooks/use-session";
 import { cn } from "@/lib/utils";
 import { Reactions } from "@prisma/client";
 import { format, isToday, isYesterday } from "date-fns";
 import hljs from "highlight.js";
-import { Loader2, User } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import dynamic from "next/dynamic";
 import { useMemo } from "react";
 import Reaction from "./reaction";
@@ -93,7 +92,7 @@ function Message({
   function countEmoji(reactions: ReactionType[], emoji: string): number {
     return reactions.filter((reaction) => reaction.value === emoji).length;
   }
-  const { onOpenMessage, onClose, parentMessageId } = usePanel();
+  const { onOpenMessage, onClose, parentMessageId,onOpenProfile } = usePanel();
 
   function isEqualDate(date1: Date, date2?: Date) {
     if (!date2 || !date1) return false;
@@ -189,7 +188,7 @@ function Message({
                   onClick={() => onOpenMessage(id)}
                   className="cursor-pointer flex items-center gap-1.5 p-1 group/reply hover:bg-white hover:border-zinc-200 border border-transparent   rounded-md mt-1 transition"
                 >
-                  <Avatar className="size-6 rounded-md ">
+                  <Avatar className="size-6 rounded-md">
                     <AvatarImage className="rounded-lg" src={threadImage} />
                     <AvatarFallback className="bg-sky-500 font-semibold text-white rounded-lg">
                       {threadImageFallback}
@@ -236,7 +235,7 @@ function Message({
       )}
     >
       <div className="flex items-start gap-2">
-        <button className="mt-[2.43px]">
+        <button className="mt-[2.43px]" onClick={()=>onOpenProfile(String(memberId))}>
           <Avatar className="size-9 rounded-lg ">
             <AvatarImage
               className="rounded-lg"
@@ -262,7 +261,7 @@ function Message({
             <div className="text-sm">
               <button
                 className="font-bold text-primary hover:underline"
-                onClick={() => {}}
+                onClick={() => onOpenProfile(String(memberId))}
               >
                 {authorName}
               </button>

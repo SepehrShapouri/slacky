@@ -11,6 +11,7 @@ import ThreadsPanel from "@/features/threads/components/threads-panel";
 import { AppSidebar } from "@/components/app-sidebar";
 import { SidebarProvider } from "@/components/ui/sidebar";
 import ThreadDrawer from "@/features/threads/components/thread-drawer";
+import ProfilePanel from "@/features/profile/components/profile-panel";
 function WorkspaceLayout({ children }: React.PropsWithChildren) {
   return (
     <SidebarProvider>
@@ -32,6 +33,7 @@ function WorkspaceLayout({ children }: React.PropsWithChildren) {
           <ResizableHandle  />
           <ResizablePanel minSize={20} defaultSize={80}>{children}</ResizablePanel>
           <ThreadsPanel/>
+          <ProfilePanel/>
         </ResizablePanelGroup>
       </div>
       <div className=" h-[100dvh] md:hidden">
