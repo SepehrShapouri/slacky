@@ -90,10 +90,10 @@ function WorkspaceSidebar() {
   return (
     <div className="flex flex-col bg-[#5e2c5f] h-full w-full ">
       <WorkspaceHeader workspace={workspace} isAdmin={member.role == "ADMIN"} />
-      <div className="flex flex-col px-2 mt-3">
+      {/* <div className="flex flex-col px-2 mt-3">
         <SidebarItem label="Threads" icon={MessageSquareText} id="threads" />
         <SidebarItem label="Drafts & sent" icon={SendHorizonal} id="drafts" />
-      </div>
+      </div> */}
       <WorkspaceSection
         label="Channels"
         hint="New channel"

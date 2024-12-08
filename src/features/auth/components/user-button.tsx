@@ -10,6 +10,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { User } from "@prisma/client";
 import { LogOut } from "lucide-react";
+import { logoutAction } from "../actions";
+import DropdownLogoutButton from "@/components/dropdown-logout";
 
 export const UserButton = ({ user }: { user: User }) => {
   const { fullname, avatarUrl, email } = user;
@@ -41,11 +43,7 @@ export const UserButton = ({ user }: { user: User }) => {
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
-
-        <DropdownMenuItem>
-          <LogOut />
-          Log out
-        </DropdownMenuItem>
+        <DropdownLogoutButton/>
       </DropdownMenuContent>
     </DropdownMenu>
   );

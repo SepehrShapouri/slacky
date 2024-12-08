@@ -57,7 +57,7 @@ export default function InviteModal({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: `Join ${workspaceName} on slacky`,
+          title: `Join ${workspaceName} on Workify`,
           text: `Use this code to join: ${joinCode}`,
           url: inviteLink,
         });

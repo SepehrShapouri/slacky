@@ -21,16 +21,13 @@ function Toolbar() {
   const { workspace, isLoading } = useGetWorkspace({ id: workspaceId });
   const { member } = useCurrentMember({ workspaceId });
   const [toolbarOpen, setToolbarOpen] = useState<boolean>(false);
+  const [mobileToolbarOpen,setMobileToolbarOpen] = useState<boolean>(false)
   return (
     <>
       <nav className="bg-[#481349]  items-center justify-between h-10  p-1.5 hidden md:flex">
         <div className="flex-1" />
         <div className="min-w-[280px] max-w-[642px] grow-[2] shrink relative">
-          {toolbarOpen ? (
-            <div className=" absolute w-full -top-3.5">
-              <SearchBarCommand onClose={() => setToolbarOpen(false)} />
-            </div>
-          ) : (
+        <SearchBarCommand open={toolbarOpen} onClose={() => setToolbarOpen(false)} />
             <Hint label={`Search ${workspace?.name}`}>
               <Button
                 onClick={() => setToolbarOpen(true)}
@@ -48,11 +45,12 @@ function Toolbar() {
                 </span>
               </Button>
             </Hint>
-          )}
         </div>
         <div className="ml-auto flex-1 flex items-center justify-end">
           <Button variant="transparent" size="iconSm">
+            <Link href="https://github.com/SepehrShapouri">
             <InfoIcon className="size-5 text-white" />
+            </Link>
           </Button>
         </div>
       </nav>
@@ -79,7 +77,9 @@ function Toolbar() {
             )}
           </div>
           <div className="flex-1">
+          <SearchBarCommand open={mobileToolbarOpen} onClose={() => setMobileToolbarOpen(false)} />
             <Button
+            onClick={()=>setMobileToolbarOpen(true)}
               size="sm"
               className="bg-accent/25 hover:bg-accent/25 w-full justify-start h-8 px-2"
             >

@@ -3,6 +3,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import {
   Command,
+  CommandDialog,
   CommandGroup,
   CommandInput,
   CommandItem,
@@ -39,9 +40,10 @@ const Renderer = dynamic(
 );
 type SearchBarCommandProps = {
   onClose: () => void;
+  open: boolean;
 };
 
-export function SearchBarCommand({ onClose }: SearchBarCommandProps) {
+export function SearchBarCommand({ onClose, open }: SearchBarCommandProps) {
   const [query, setQuery] = useState<string>();
   const debouncedQuery = useDebounce(query, 300);
 
@@ -101,12 +103,7 @@ export function SearchBarCommand({ onClose }: SearchBarCommandProps) {
   }, [fetchedSearchResult, isSearchResultLoading]);
 
   return (
-    <Command
-      // shouldFilter={isSearchResultLoading ? false : true}
-      shouldFilter={false}
-      className="rounded-lg border shadow-md relative z-[9999]"
-      ref={commandRef}
-    >
+    <CommandDialog open={open} onOpenChange={onClose} >
       <div className="w-full relative">
         <CommandInput
           value={query || undefined}
@@ -114,16 +111,8 @@ export function SearchBarCommand({ onClose }: SearchBarCommandProps) {
           className="w-full"
           placeholder="Search for messages, replies, or anything..."
         />
-        <Button
-          size="iconSm"
-          className="absolute right-1.5 hover:bg-muted top-1.5"
-          variant="transparent"
-          onClick={onClose}
-        >
-          <MdClose className="text-black" />
-        </Button>
       </div>
-      <CommandList className="z-[999]">
+      <CommandList className="z-[999]" >
         <CommandGroup heading="Users">
           {isMembersLoading && (
             <CommandItem onClick={() => onClose()}>
@@ -207,7 +196,7 @@ export function SearchBarCommand({ onClose }: SearchBarCommandProps) {
           );
         })}
       </CommandList>
-    </Command>
+    </CommandDialog>
   );
 }
 

@@ -111,7 +111,7 @@ function WorkspaceHeader({ workspace, isAdmin }: WorkspaceHeaderProps) {
             )}
           </DropdownMenuContent>
         </DropdownMenu>
-        <div
+        {/* <div
           className={cn(
             "md:flex items-center gap-0.5 hidden",
             isMobile && openMobile && "flex"
@@ -122,7 +122,7 @@ function WorkspaceHeader({ workspace, isAdmin }: WorkspaceHeaderProps) {
               <SquarePen className="size-4" />
             </Button>
           </Hint>
-        </div>
+        </div> */}
       </div>
     </>
   );

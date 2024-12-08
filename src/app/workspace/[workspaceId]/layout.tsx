@@ -36,7 +36,7 @@ function WorkspaceLayout({ children }: React.PropsWithChildren) {
           <ProfilePanel/>
         </ResizablePanelGroup>
       </div>
-      <div className=" h-[100dvh] md:hidden">
+      <div className="h-[90dvh] lg:h-[100dvh] md:hidden">
         <AppSidebar/>
         {children}
       </div>
