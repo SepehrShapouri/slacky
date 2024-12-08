@@ -1,16 +1,15 @@
 "use client";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
-  Command,
   CommandDialog,
   CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
+  CommandSeparator
 } from "@/components/ui/command";
 import useGetChannels from "@/features/channels/api/use-get-channels";
+import useFindConversationById from "@/features/direct-messages/hooks/use-find-conversation-by-id";
 import { useCurrentMember } from "@/features/members/api/use-current-member";
 import useGetMembers from "@/features/members/api/use-get-members";
 import useDebounce from "@/hooks/use-debounce";
@@ -22,13 +21,8 @@ import hljs from "highlight.js";
 import { HashIcon, Loader2, Search } from "lucide-react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import { MdClose } from "react-icons/md";
 import { Message, SearchResult } from "../types";
-import useGetConvMessage from "@/features/direct-messages/hooks/use-get-message";
-import useFindOrCreateConversation from "@/features/direct-messages/hooks/use-find-or-create-conversation";
-import useFindConversationById from "@/features/direct-messages/hooks/use-find-conversation-by-id";
 const Renderer = dynamic(
   () => {
     hljs.configure({ languages: ["javascript", "html", "css"] });
