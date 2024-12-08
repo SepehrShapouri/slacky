@@ -61,11 +61,6 @@ export default function UserItem({
         </div>
         <span className="text-sm truncate">{label}</span>
         {id == member?.id && <span className="text-white/40 text-xs">you</span>}
-        {id !== member?.id && (
-          <span className="size-4 text-xs tabular-nums bg-rose-600 text-white font-bold flex items-center justify-center rounded-full">
-            5
-          </span>
-        )}
       </Link>
     </Button>
   );

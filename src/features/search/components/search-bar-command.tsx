@@ -169,7 +169,7 @@ export function SearchBarCommand({ onClose }: SearchBarCommandProps) {
         <CommandSeparator />
         <CommandGroup heading="Channels">
           {isChannelsLoading && (
-            <CommandItem onClick={() => onClose()}>
+            <CommandItem onSelect={() => onClose()}>
               <div className="relative flex items-center gap-1.5">
                 <Loader2 className="size-5 animate-spin" />
                 <span className="text-sm truncate">Loading channels...</span>
@@ -178,7 +178,7 @@ export function SearchBarCommand({ onClose }: SearchBarCommandProps) {
           )}
           {channels?.map((channel) => {
             return (
-              <CommandItem onClick={() => onClose()}>
+              <CommandItem onSelect={() => onClose()}>
                 <Link
                   href={`/workspace/${workspaceId}/channel/${channel.id}`}
                   className="flex items-center w-full"
@@ -232,7 +232,7 @@ function SearchListMessage({
         <CommandItem
           key={message.id}
           className="cursor-pointer"
-          onClick={() => onClose()}
+          onSelect={() => onClose()}
         >
           <Link
             href={`/workspace/${workspaceId}/${
