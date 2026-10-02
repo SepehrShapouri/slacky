@@ -3,9 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev -p 3001 --turbo",
-    "build": "prisma generate && next build",
-    "start": "next start",
+    "dev": "node api.js && next dev -p 3001 --turbo",
+    "build": "node api.js && prisma generate && next build",
+    "start": "node api.js && next start",
     "lint": "next lint"
   },
   "dependencies": {
